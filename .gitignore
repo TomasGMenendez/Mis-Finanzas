@@ -1,0 +1,13 @@
+# Secretos / credenciales
+bybit_config.txt
+
+# Datos financieros crudos (extractos, portafolio, planillas)
+account_statement-*.csv
+sync_log.txt
+Finanzas_Toto.xlsx
+Dashboard de finanzas personales.zip
+
+# Otros
+__pycache__/
+.claude/worktrees/
+.claude/settings.local.json

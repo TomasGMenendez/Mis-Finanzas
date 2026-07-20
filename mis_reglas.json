@@ -1,0 +1,296 @@
+{
+  "_comentario": "Reglas de categorización automática. Cada regla matchea un patrón en la descripción del movimiento y le asigna categoría + descripción limpia.",
+  "reglas_gastos": [
+    {
+      "match": "ruben eulalio ñañez",
+      "categoria": "Kiosco/Almacén",
+      "descripcion": "Kiosco/Almacén"
+    },
+    {
+      "match": "fenghua zhong",
+      "categoria": "Kiosco/Almacén",
+      "descripcion": "Kiosco/Almacén"
+    },
+    {
+      "match": "pago dlocal",
+      "categoria": "Suscripciones",
+      "descripcion": "Suscripción (Dlocal)"
+    },
+    {
+      "match": "pago ebanx",
+      "categoria": "Transporte/Combustible",
+      "descripcion": "Uber"
+    },
+    {
+      "match": "pago apple",
+      "categoria": "Suscripciones",
+      "descripcion": "Apple (iCloud/App)"
+    },
+    {
+      "match": "pago anthropic",
+      "categoria": "Suscripciones",
+      "descripcion": "Anthropic Claude"
+    },
+    {
+      "match": "claude",
+      "categoria": "Suscripciones",
+      "descripcion": "Anthropic Claude"
+    },
+    {
+      "match": "pago disney",
+      "categoria": "Suscripciones",
+      "descripcion": "Disney+"
+    },
+    {
+      "match": "pago netflix",
+      "categoria": "Suscripciones",
+      "descripcion": "Netflix"
+    },
+    {
+      "match": "pago spotify",
+      "categoria": "Suscripciones",
+      "descripcion": "Spotify"
+    },
+    {
+      "match": "pago youtube",
+      "categoria": "Suscripciones",
+      "descripcion": "YouTube Premium"
+    },
+    {
+      "match": "pago rappi",
+      "categoria": "Restaurantes/Delivery",
+      "descripcion": "Rappi delivery"
+    },
+    {
+      "match": "pago pedidosya",
+      "categoria": "Restaurantes/Delivery",
+      "descripcion": "PedidosYa"
+    },
+    {
+      "match": "peaje",
+      "categoria": "Transporte/Combustible",
+      "descripcion": "Peaje"
+    },
+    {
+      "match": "telepase",
+      "categoria": "Transporte/Combustible",
+      "descripcion": "Peaje TelePASE"
+    },
+    {
+      "match": "autopista",
+      "categoria": "Transporte/Combustible",
+      "descripcion": "Peaje autopista"
+    },
+    {
+      "match": "corredores viales",
+      "categoria": "Transporte/Combustible",
+      "descripcion": "Peaje corredores viales"
+    },
+    {
+      "match": "cuota créditos de mercado",
+      "categoria": "Impuestos/Bancos",
+      "descripcion": "Cuota crédito MP"
+    },
+    {
+      "match": "pago anticipado créditos",
+      "categoria": "Impuestos/Bancos",
+      "descripcion": "Pago anticipado crédito MP"
+    },
+    {
+      "match": "costo de extracción",
+      "categoria": "Impuestos/Bancos",
+      "descripcion": "Comisión extracción"
+    },
+    {
+      "match": "qr criomeat",
+      "categoria": "Kiosco/Almacén",
+      "descripcion": "Carnicería Criomeat"
+    },
+    {
+      "match": "qr supermercado la reina",
+      "categoria": "Supermercado",
+      "descripcion": "Super La Reina"
+    },
+    {
+      "match": "qr rapipago",
+      "categoria": "Impuestos/Bancos",
+      "descripcion": "Pago Rapipago"
+    },
+    {
+      "match": "la blanca",
+      "categoria": "Transporte/Combustible",
+      "descripcion": "YPF La Blanca"
+    },
+    {
+      "match": "ypf",
+      "categoria": "Transporte/Combustible",
+      "descripcion": "YPF"
+    },
+    {
+      "match": "shell",
+      "categoria": "Transporte/Combustible",
+      "descripcion": "Shell"
+    },
+    {
+      "match": "axion",
+      "categoria": "Transporte/Combustible",
+      "descripcion": "Axion"
+    },
+    {
+      "match": "coto",
+      "categoria": "Supermercado",
+      "descripcion": "Coto"
+    },
+    {
+      "match": "carrefour",
+      "categoria": "Supermercado",
+      "descripcion": "Carrefour"
+    },
+    {
+      "match": "vea ",
+      "categoria": "Supermercado",
+      "descripcion": "Vea"
+    },
+    {
+      "match": "día ",
+      "categoria": "Supermercado",
+      "descripcion": "Día"
+    },
+    {
+      "match": "la anonima",
+      "categoria": "Supermercado",
+      "descripcion": "La Anónima"
+    },
+    {
+      "match": "edenor",
+      "categoria": "Servicios (luz/gas/agua/internet)",
+      "descripcion": "Luz (Edenor)"
+    },
+    {
+      "match": "edesur",
+      "categoria": "Servicios (luz/gas/agua/internet)",
+      "descripcion": "Luz (Edesur)"
+    },
+    {
+      "match": "epe",
+      "categoria": "Servicios (luz/gas/agua/internet)",
+      "descripcion": "Luz EPE (Rosario)"
+    },
+    {
+      "match": "metrogas",
+      "categoria": "Servicios (luz/gas/agua/internet)",
+      "descripcion": "Gas (Metrogas)"
+    },
+    {
+      "match": "litoral gas",
+      "categoria": "Servicios (luz/gas/agua/internet)",
+      "descripcion": "Gas (Litoral)"
+    },
+    {
+      "match": "aysa",
+      "categoria": "Servicios (luz/gas/agua/internet)",
+      "descripcion": "Agua (Aysa)"
+    },
+    {
+      "match": "assa",
+      "categoria": "Servicios (luz/gas/agua/internet)",
+      "descripcion": "Agua (ASSA)"
+    },
+    {
+      "match": "personal",
+      "categoria": "Servicios (luz/gas/agua/internet)",
+      "descripcion": "Personal (celular/net)"
+    },
+    {
+      "match": "movistar",
+      "categoria": "Servicios (luz/gas/agua/internet)",
+      "descripcion": "Movistar"
+    },
+    {
+      "match": "claro",
+      "categoria": "Servicios (luz/gas/agua/internet)",
+      "descripcion": "Claro"
+    },
+    {
+      "match": "juan ramon cancinos",
+      "categoria": "Regalos",
+      "descripcion": "Transferencia enviada Juan Ramon Cancinos"
+    },
+    {
+      "match": "luca valentino calfieri",
+      "categoria": "Regalos",
+      "descripcion": "Transferencia enviada Luca Valentino Calfieri"
+    },
+    {
+      "match": "veronica gabriela charras",
+      "categoria": "Regalos",
+      "descripcion": "Transferencia enviada Veronica Gabriela Charras"
+    },
+    {
+      "match": "pago microsoft",
+      "categoria": "Suscripciones",
+      "descripcion": "Microsoft (365/Xbox/etc)"
+    },
+    {
+      "match": "bull market",
+      "categoria": "Inversión / Transferencia",
+      "descripcion": "Transferencia a Bull Market (invertir)"
+    },
+    {
+      "match": "natacha de la penna",
+      "categoria": "Inversión / Transferencia",
+      "descripcion": "Compra USDT/cripto (Natacha)"
+    }
+  ],
+  "reglas_ingresos": [
+    {
+      "match": "acreditación préstamo",
+      "fuente": "Préstamo Personal MP"
+    },
+    {
+      "match": "rendimientos",
+      "fuente": "Rendimiento MP savings"
+    }
+  ],
+  "excluir": [
+    {
+      "match": "extracción de efectivo rapipago",
+      "razon": "Efectivo en pesos que no querés trackear"
+    },
+    {
+      "match": "dinero reservado",
+      "razon": "Movimiento interno entre sobres MP"
+    },
+    {
+      "match": "dinero retirado",
+      "razon": "Movimiento interno entre sobres MP"
+    },
+    {
+      "match": "transferencia enviada tomas giacomo menendez",
+      "razon": "Autoenvío entre cuentas propias"
+    },
+    {
+      "match": "transferencia recibida tomas giacomo menendez",
+      "razon": "Autoenvío entre cuentas propias"
+    },
+    {
+      "match": "fundacion temaiken",
+      "razon": "Plata que va y vuelve, saldo neto cero, no es gasto real"
+    },
+    {
+      "match": "graciela mabel fava",
+      "razon": "Movimiento de inversión con esta persona, no es gasto de consumo"
+    },
+    {
+      "match": "menendez rodrigo emanuel",
+      "razon": "Toto pidio no contarla, no es gasto"
+    },
+    {
+      "match": "devoluci",
+      "razon": "Devolución/reembolso de un pago — no es un gasto nuevo, es plata que vuelve. Bug encontrado 19/07/2026: 'Devolución de pago Rappi' se estaba contando como un segundo gasto de Rappi."
+    }
+  ],
+  "categoria_default_gasto": "Otros",
+  "categoria_default_transferencia_persona": "Kiosco/Almacén",
+  "_nota_transferencias": "Cuando aparezca una transferencia a persona nueva NO listada arriba, preguntar a Toto qué es antes de asignar categoría."
+}
