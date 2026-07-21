@@ -8,6 +8,7 @@ import sys, os, subprocess, importlib
 from pathlib import Path
 
 BASE = Path(__file__).parent
+RAIZ = BASE.parent  # donde vive Finanzas_Toto.xlsx
 
 # ----- Auto-install de dependencias -----
 def ensure(pkg, import_name=None):
@@ -151,7 +152,7 @@ print(f"{'TOTAL':<40}{total_usd:>14.2f} USD")
 
 # ----- Sync al Excel -----
 if "--sync" in sys.argv:
-    xlsx_path = BASE / "Finanzas_Toto.xlsx"
+    xlsx_path = RAIZ / "Finanzas_Toto.xlsx"
     if not xlsx_path.exists():
         print(f"\nERROR: no encuentro {xlsx_path}"); sys.exit(1)
     wb = load_workbook(xlsx_path)

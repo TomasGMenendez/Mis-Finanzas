@@ -8,6 +8,17 @@ import sys, json, os, subprocess
 from pathlib import Path
 
 BASE = Path(__file__).parent
+RAIZ = BASE.parent  # donde vive Finanzas_Toto.xlsx
+
+
+def is_duplicate_existing(existing, fecha_str, descripcion, monto):
+    """Devuelve True cuando ya existe un gasto igual por fecha + persona/descripcion.
+    El monto NO participa en la comparación para evitar falsos duplicados cuando
+    una misma transferencia cambia de importe o se corrige en un nuevo reporte."""
+    if not fecha_str or not descripcion:
+        return False
+    key = (str(fecha_str)[:10], (descripcion or "").strip().lower())
+    return key in existing
 
 # Auto-install deps
 def ensure(pkg):
@@ -94,7 +105,7 @@ if len(revisar) > 0:
     print("Después de correr, andá a la hoja Gastos y editá esas categorías.")
 
 # Cargar al Excel
-xlsx_path = BASE / "Finanzas_Toto.xlsx"
+xlsx_path = RAIZ / "Finanzas_Toto.xlsx"
 wb = load_workbook(xlsx_path)
 BLUE = "7CA8FF"; INK = "F5F5F5"; FN = "Segoe UI"
 
@@ -117,23 +128,22 @@ for r in range(5, MAX_ROW + 1):
         last_row = r
 row = last_row + 1
 
-# Anti-duplicados: pedido explícito de Toto (19/07/2026) — nunca cargar un
-# movimiento que ya esté en la hoja (misma fecha + descripción + monto),
-# sin importar en qué corrida se haya cargado antes. Repetir el mismo gasto
-# a la misma persona en DÍAS DISTINTOS es válido y se carga igual.
+# Anti-duplicados: pedido explícito de Toto — no cargar un movimiento si ya
+# existe otro de la misma fecha y misma persona/descripcion en la hoja, sin
+# importar si el monto cambió. Repetir el mismo gasto a la misma persona en
+# días distintos es válido y debe cargarse igual.
 existentes = set()
 for r in range(5, last_row + 1):
     fecha_v = gas.cell(r, 2).value
     desc_v = gas.cell(r, 5).value
-    monto_v = gas.cell(r, 9).value
     if fecha_v is not None:
-        existentes.add((str(fecha_v)[:10], (desc_v or '').strip().lower(), round(float(monto_v or 0), 2)))
+        existentes.add((str(fecha_v)[:10], (desc_v or '').strip().lower()))
 
 agregados = 0
 saltados = 0
 for _, r_ in pd.concat([gastos, revisar]).iterrows():
-    key = (str(r_["fecha"].date()), r_["fuente"][:100].strip().lower(), round(float(abs(r_["amt"])), 2))
-    if key in existentes:
+    key = (str(r_["fecha"].date()), r_["fuente"][:100].strip().lower())
+    if is_duplicate_existing(existentes, r_["fecha"].date(), r_["fuente"][:100], abs(r_["amt"])):
         saltados += 1
         continue
     gas.cell(row, 2, r_["fecha"].date()).number_format = 'dd/mm/yyyy'
@@ -190,5 +200,5 @@ for i, f in enumerate(filas_todas):
 
 wb.save(xlsx_path)
 print(f"\n✅ Cargado al Excel: {xlsx_path}")
-print(f"   {agregados} filas nuevas · {saltados} saltadas por ser duplicado exacto (misma fecha+descripción+monto)")
+print(f"   {agregados} filas nuevas · {saltados} saltadas por ser duplicado (misma fecha + persona/descripcion)")
 print(f"   Hoja reordenada por fecha (vieja→nueva), {len(filas_todas)} filas totales.")

@@ -1,14 +1,14 @@
 """
-Finanzas_Toto.xlsx → index.html
+Finanzas_Toto.xlsx -> Mi Dashboard de Finanzas.html
 Uso:  python generar_datos_html.py
 
 Lee Finanzas_Toto.xlsx (hojas Gastos, Ingresos, Inversiones, Config) y
-reemplaza la variable EMBEDDED_DATA dentro de index.html con los datos
-reales actuales. Así, al abrir index.html haciendo doble clic (sin server,
-sin conexión en vivo), el dashboard ya muestra tus datos reales tal como
-estaban en el Excel al momento de correr este script.
+reemplaza la variable EMBEDDED_DATA dentro de "Mi Dashboard de Finanzas.html"
+con los datos reales actuales. Así, al abrir ese archivo haciendo doble clic
+(sin server, sin conexión en vivo), el dashboard ya muestra tus datos reales
+tal como estaban en el Excel al momento de correr este script.
 
-Corré este script cada vez que quieras que index.html refleje los últimos
+Corré este script cada vez que quieras que el Dashboard refleje los últimos
 cambios del Excel (después de sincronizar MercadoPago/Bybit o editar a mano).
 """
 import sys, os, subprocess, json, re, shutil, tempfile
@@ -16,6 +16,7 @@ from pathlib import Path
 from datetime import datetime, date
 
 BASE = Path(__file__).parent
+RAIZ = BASE.parent  # donde viven Finanzas_Toto.xlsx y el Dashboard
 
 def ensure(pkg):
     try:
@@ -26,7 +27,7 @@ ensure("openpyxl")
 
 from openpyxl import load_workbook
 
-xlsx_path = Path(sys.argv[1]) if len(sys.argv) > 1 else BASE / "Finanzas_Toto.xlsx"
+xlsx_path = Path(sys.argv[1]) if len(sys.argv) > 1 else RAIZ / "Finanzas_Toto.xlsx"
 if not xlsx_path.exists():
     print(f"No encuentro {xlsx_path}")
     sys.exit(1)
@@ -136,14 +137,14 @@ data = {
 wb.close()
 tmp_path.unlink(missing_ok=True)
 
-html_path = BASE / "index.html"
+html_path = RAIZ / "Mi Dashboard de Finanzas.html"
 html = html_path.read_text(encoding="utf-8")
 new_line = "var EMBEDDED_DATA = " + json.dumps(data, ensure_ascii=False, separators=(",", ":")) + ";"
 new_html, n = re.subn(r"var EMBEDDED_DATA = .*?;", lambda m: new_line, html, count=1)
 if n == 0:
-    print("No encontré 'var EMBEDDED_DATA' en index.html — no se modificó nada.")
+    print("No encontré 'var EMBEDDED_DATA' en el Dashboard — no se modificó nada.")
     sys.exit(1)
 
 html_path.write_text(new_html, encoding="utf-8")
-print(f"index.html actualizado con datos reales: {len(gastos)} gastos, {len(ingresos)} ingresos, {len(inversiones)} inversiones.")
-print("Abrí index.html haciendo doble clic para verlo con estos datos.")
+print(f"Dashboard actualizado con datos reales: {len(gastos)} gastos, {len(ingresos)} ingresos, {len(inversiones)} inversiones.")
+print('Abrí "Mi Dashboard de Finanzas.html" haciendo doble clic para verlo con estos datos.')
