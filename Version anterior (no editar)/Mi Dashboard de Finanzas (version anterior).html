@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mis Finanzas</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>$</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--outer);font-family:'DM Sans',system-ui,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;transition:background .3s}
+body,body[data-theme="dark"]{
+  --outer:#0e0d09;--bg:#16140e;--card:#201d15;--ink:#f0ebe0;--muted:#9b9585;--faint:#6f6a5c;
+  --line:rgba(240,235,224,.12);--line-soft:rgba(240,235,224,.08);--line-strong:rgba(240,235,224,.18);
+  --header:rgba(22,20,14,.86);--track:#2b2820;--seg:#2b2820;--elevbg:#2c2820;--elevfg:#f4f1ea;
+  --tint-red:rgba(192,73,47,.16);--tint-green:rgba(31,122,77,.18)
+}
+body[data-theme="light"]{
+  --outer:#e7e2d6;--bg:#f4f1ea;--card:#ffffff;--ink:#1a1a17;--muted:#8a857a;--faint:#b3ada0;
+  --line:rgba(26,26,23,.08);--line-soft:rgba(26,26,23,.06);--line-strong:rgba(26,26,23,.14);
+  --header:rgba(244,241,234,.86);--track:#f1eee6;--seg:#e7e2d6;--elevbg:#1a1a17;--elevfg:#f4f1ea;
+  --tint-red:#faf1ee;--tint-green:#eef5f0
+}
+.shell{max-width:480px;margin:0 auto;min-height:100vh;min-height:100dvh;background:var(--bg);box-shadow:0 0 60px rgba(0,0,0,.08)}
+header{position:sticky;top:0;z-index:20;background:var(--header);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:16px 18px 12px}
+.hdr-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.hdr-brand{display:flex;align-items:center;gap:9px;min-width:0}
+.hdr-logo{width:30px;height:30px;border-radius:8px;background:var(--elevbg);color:var(--elevfg);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px}
+.hdr-title{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px;line-height:1.1;letter-spacing:-.01em}
+.hdr-sub{font-size:11px;color:var(--muted);line-height:1.2}
+.hdr-actions{display:flex;align-items:center;gap:6px}
+.hdr-btn{width:34px;height:34px;border-radius:9px;border:1px solid var(--line);background:var(--card);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all .15s}
+.hdr-btn:hover{border-color:var(--line-strong);transform:translateY(-1px)}
+.hdr-btn:active{transform:scale(.9)}
+.hdr-logo{transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
+.hdr-brand:hover .hdr-logo{transform:rotate(-8deg) scale(1.06)}
+.range-bar{display:flex;gap:4px;background:var(--seg);border-radius:11px;padding:4px;margin-top:12px}
+.range-btn{flex:1;padding:7px 0;border:none;border-radius:8px;cursor:pointer;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;background:transparent;color:var(--muted);transition:all .15s}
+.range-btn:active{transform:scale(.94)}
+.range-btn.active{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.upload-bar{margin-top:10px;text-align:center;font-size:11px;color:var(--muted)}
+.upload-bar a{color:var(--muted);text-decoration:underline;cursor:pointer}
+main{padding:16px 18px 40px;display:flex;flex-direction:column;gap:5px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;transition:background .3s,border-color .3s,transform .25s ease,box-shadow .25s ease}
+.card:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.12)}
+.summary{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.balance-card{grid-column:1 / -1;background:var(--elevbg);color:var(--elevfg);border-radius:16px;padding:16px 18px;transition:transform .25s ease,box-shadow .25s ease}
+.balance-card:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.18)}
+.balance-label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(244,241,234,.55);font-weight:600}
+.balance-val{font-family:'Space Grotesk',sans-serif;font-variant-numeric:tabular-nums;font-size:32px;font-weight:700;letter-spacing:-.02em;margin-top:4px}
+.balance-note{font-size:12px;color:rgba(244,241,234,.6);margin-top:2px}
+.sum-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 14px;transition:transform .25s ease,box-shadow .25s ease}
+.sum-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.1)}
+.sum-dot{transition:transform .3s ease}
+.sum-card:hover .sum-dot{transform:scale(1.3)}
+.sum-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.sum-label{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);font-weight:600}
+.sum-val{font-family:'Space Grotesk',sans-serif;font-variant-numeric:tabular-nums;font-size:18px;font-weight:700;margin-top:5px;color:var(--ink)}
+.sum-delta{font-size:11px;color:var(--muted);margin-top:1px}
+h2{margin:0;font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;letter-spacing:-.01em}
+.chart-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px}
+.chart-legend{display:flex;gap:12px;font-size:11px;color:var(--muted)}
+.chart-legend span{display:flex;align-items:center;gap:5px}
+.legend-line{width:16px;height:3px;border-radius:2px;display:inline-block}
+.cat-row{margin-bottom:11px}
+.cat-row:last-child{margin-bottom:0}
+.cat-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;cursor:pointer;user-select:none}
+.cat-name{font-size:13px;font-weight:500;display:flex;align-items:center;gap:6px}
+.cat-chevron{font-size:9px;color:var(--muted);transition:transform .2s ease;display:inline-block}
+.cat-row.open .cat-chevron{transform:rotate(180deg)}
+.cat-val{font-family:'Space Grotesk',sans-serif;font-variant-numeric:tabular-nums;font-size:12.5px;font-weight:700}
+.bar-track{height:8px;border-radius:5px;background:var(--track);overflow:hidden;cursor:pointer}
+.bar-fill{height:100%;border-radius:5px;transition:width .5s ease;transform-origin:left}
+.bar-fill.grow{animation:growbar .7s cubic-bezier(.16,1,.3,1) both}
+@keyframes growbar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.cat-detail{display:none;margin-top:8px;padding:2px 2px 2px 4px;border-left:2px solid var(--line)}
+.cat-row.open .cat-detail{display:block}
+.cat-search{padding:0 0 6px 4px}
+.cat-search-input{width:100%;background:var(--track);border:1px solid var(--line);border-radius:7px;padding:6px 9px;font-size:11.5px;color:var(--ink);font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s ease}
+.cat-search-input:focus{border-color:var(--line-strong)}
+.cat-search-input::placeholder{color:var(--faint)}
+.cat-search-empty{font-size:11.5px;color:var(--faint);padding:6px 4px}
+.cat-detail-row{display:flex;justify-content:space-between;gap:10px;font-size:11.5px;color:var(--muted);padding:4px 0}
+.cat-detail-row span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.top-bottom{display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line-soft)}
+.top-bottom>div{flex:1;border-radius:10px;padding:9px 11px}
+.top-box{background:var(--tint-red)}
+.top-box .tb-label{font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:#c0492f;font-weight:700}
+.bottom-box{background:var(--tint-green)}
+.bottom-box .tb-label{font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:#1f7a4d;font-weight:700}
+.tb-val{font-size:13px;font-weight:600;margin-top:2px}
+.port-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px}
+.port-total{font-family:'Space Grotesk',sans-serif;font-variant-numeric:tabular-nums;font-size:15px;font-weight:700}
+.port-bar{display:flex;height:10px;border-radius:6px;overflow:hidden;background:var(--track);margin-bottom:6px}
+.port-legend{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:18px}
+.port-legend span{display:flex;align-items:center;gap:5px}
+.port-legend .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.group-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;padding-bottom:6px;border-bottom:1px solid var(--line-soft)}
+.group-label{display:flex;align-items:center;gap:7px}
+.group-dot{width:9px;height:9px;border-radius:3px;flex:none}
+.group-name{font-size:11px;letter-spacing:.04em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.asset-row{display:flex;align-items:center;gap:11px;padding:7px 0;transition:background .15s ease}
+.asset-row.in{animation:fadeup .4s ease both}
+.asset-row:hover{background:var(--line-soft)}
+.asset-logo{position:relative;width:32px;height:32px;border-radius:9px;flex:none;display:flex;align-items:center;justify-content:center;overflow:hidden;transition:transform .2s ease}
+.asset-row:hover .asset-logo{transform:scale(1.08)}
+.asset-logo span{font-size:11px;font-weight:700;color:#fff;font-family:'Space Grotesk',sans-serif;letter-spacing:-.02em}
+.asset-logo img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.asset-info{flex:1;min-width:0}
+.asset-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.asset-cat{font-size:10.5px;color:var(--muted)}
+.asset-vals{text-align:right;flex:none}
+.asset-price{font-family:'Space Grotesk',sans-serif;font-variant-numeric:tabular-nums;font-size:12.5px;font-weight:700}
+.asset-sub{font-size:10.5px;color:var(--muted)}
+.port-footer{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.port-footer-label{font-size:11px;letter-spacing:.04em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.port-footer-sub{font-size:10.5px;color:var(--muted);margin-top:2px}
+.port-footer-val{font-family:'Space Grotesk',sans-serif;font-variant-numeric:tabular-nums;font-size:22px;font-weight:700;color:#c98a1a}
+.mov-row{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid var(--line-soft);transition:background .15s ease}
+.mov-row.in{animation:fadeup .4s ease both}
+.mov-row:last-child{border-bottom:none}
+.mov-row:hover{background:var(--line-soft)}
+.mov-icon{width:34px;height:34px;border-radius:9px;background:var(--track);display:flex;align-items:center;justify-content:center;font-size:14px;flex:none;transition:transform .2s ease}
+.mov-row:hover .mov-icon{transform:scale(1.1) rotate(-4deg)}
+.mov-info{flex:1;min-width:0}
+.mov-desc{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mov-cat{font-size:11px;color:var(--muted)}
+.mov-amt{font-family:'Space Grotesk',sans-serif;font-variant-numeric:tabular-nums;font-size:13px;font-weight:700;white-space:nowrap}
+.mov-amt.ingreso{color:#1f7a4d}
+.footer-note{text-align:center;font-size:11px;color:var(--faint);padding:6px}
+.amt{transition:filter .2s}
+.privacy .amt{filter:blur(8px)}
+@keyframes fadeup{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+section{animation:fadeup .5s cubic-bezier(.16,1,.3,1) both}
+main>section:nth-of-type(1){animation-delay:.02s}
+main>section:nth-of-type(2){animation-delay:.08s}
+main>section:nth-of-type(3){animation-delay:.14s}
+main>section:nth-of-type(4){animation-delay:.2s}
+main>section:nth-of-type(5){animation-delay:.26s}
+.chart-line{animation:none}
+.port-bar>div{transition:width .6s cubic-bezier(.16,1,.3,1)}
+::-webkit-scrollbar{width:0;height:0}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+}
+@media(min-width:900px){
+  .shell{max-width:1060px!important}
+  main{display:grid!important;grid-template-columns:1fr 1fr;gap:6px;align-items:start}
+  .span{grid-column:1 / -1}
+  .summary{grid-template-columns:1.6fr 1fr 1fr!important}
+  .balance-card{grid-column:auto!important}
+}
+</style>
+</head>
+<body data-theme="dark">
+<div class="shell" id="app">
+  <header>
+    <div class="hdr-row">
+      <div class="hdr-brand">
+        <div class="hdr-logo">$</div>
+        <div>
+          <div class="hdr-title">Finanzas Toto</div>
+          <div class="hdr-sub" id="periodLabel">julio 2026</div>
+        </div>
+      </div>
+      <div class="hdr-actions">
+        <button class="hdr-btn" id="btnLive" title="Conectar Excel en vivo" style="font-size:15px">&#8635;</button>
+        <button class="hdr-btn" id="btnTheme" title="Cambiar tema">&#9790;</button>
+        <button class="hdr-btn" id="btnPrivacy" title="Ocultar montos">&#128065;</button>
+      </div>
+    </div>
+    <div class="range-bar" id="rangeBar">
+      <button class="range-btn" data-range="mes">1M</button>
+      <button class="range-btn" data-range="3m">3M</button>
+      <button class="range-btn" data-range="6m">6M</button>
+      <button class="range-btn active" data-range="todo">Todo</button>
+    </div>
+    <div class="upload-bar">
+      <span id="uploadStatus">Datos cargados</span> · <a id="uploadLink">cargá tu archivo Excel</a>
+      <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none">
+    </div>
+    <div id="liveStatus" style="margin-top:6px;text-align:center;font-size:11px;color:var(--muted)"></div>
+    <div id="reconnectBanner" style="display:none;margin-top:8px;padding:10px 14px;border-radius:10px;background:#c98a1a22;border:1px solid #c98a1a55;align-items:center;justify-content:space-between;gap:10px">
+      <span style="font-size:12.5px;color:var(--ink)">⚠️ Se perdió la conexión en vivo con el Excel — los datos que ves pueden estar desactualizados.</span>
+      <button id="reconnectBtn" style="flex-shrink:0;background:#c98a1a;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:12.5px;font-weight:600;cursor:pointer">Reconectar ahora</button>
+    </div>
+    <div id="lockedBanner" style="display:none;margin-top:8px;padding:10px 14px;border-radius:10px;background:#c9401a22;border:1px solid #c9401a55;align-items:center;justify-content:space-between;gap:10px">
+      <span style="font-size:12.5px;color:var(--ink)">🔒 No se pudo leer el archivo (puede estar abierto en Excel o sincronizando con OneDrive). Guardalo y cerralo si lo tenés abierto, o esperá unos segundos si OneDrive está sincronizando.</span>
+      <button id="retryBtn" style="flex-shrink:0;background:#c9401a;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:12.5px;font-weight:600;cursor:pointer">Reintentar</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="span">
+      <div class="summary">
+        <div class="balance-card">
+          <div class="balance-label">Balance del período</div>
+          <div class="balance-val amt" id="balanceVal">$ 0</div>
+          <div class="balance-note" id="balanceNote"></div>
+        </div>
+        <div class="sum-card">
+          <div class="sum-label"><span class="sum-dot" id="dotIng" style="background:#1f7a4d"></span>Ingresos</div>
+          <div class="sum-val amt" id="ingVal">$ 0</div>
+          <div class="sum-delta" id="ingDelta"></div>
+        </div>
+        <div class="sum-card">
+          <div class="sum-label"><span class="sum-dot" style="background:#c0492f"></span>Gastos</div>
+          <div class="sum-val amt" id="gasVal">$ 0</div>
+          <div class="sum-delta" id="gasDelta"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="span card">
+      <div class="chart-header">
+        <h2>Evolución mensual</h2>
+        <div class="chart-legend">
+          <span><span class="legend-line" style="background:#1f7a4d"></span>Ingresos</span>
+          <span><span class="legend-line" style="background:#c0492f"></span>Gastos</span>
+        </div>
+      </div>
+      <div id="chartContainer"></div>
+    </section>
+
+    <section class="card">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px">
+        <h2>En qué gastás</h2>
+        <span style="font-size:11px;color:var(--muted)" id="catTotal">$ 0 en total</span>
+      </div>
+      <div id="catBars"></div>
+      <div class="top-bottom">
+        <div class="top-box"><div class="tb-label">Más gastás</div><div class="tb-val" id="topCat"></div></div>
+        <div class="bottom-box"><div class="tb-label">Menos gastás</div><div class="tb-val" id="bottomCat"></div></div>
+      </div>
+    </section>
+
+    <section class="card" id="portSection" style="display:none">
+      <div class="port-header">
+        <h2>Portafolio</h2>
+        <span class="port-total amt" id="portTotal">$ 0</span>
+      </div>
+      <div id="portContent"></div>
+    </section>
+
+    <section class="card">
+      <h2 style="margin-bottom:8px">Movimientos recientes</h2>
+      <div id="movList"></div>
+    </section>
+
+    <div class="span footer-note" id="footerNote">Datos de Finanzas_Toto.xlsx</div>
+  </main>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+var ACCENT = '#1f7a4d';
+var MES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+var MESL = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+var PAL = ['#1f7a4d','#c0492f','#2f7fae','#d9a441','#7a5bb5','#2f9e8f','#b5642f','#8a8577','#4a6d8c','#a05270'];
+
+var EMBEDDED_DATA = {"gastos":[{"fecha":"2026-06-05","cat":"Servicios (luz/gas/agua/internet)","desc":"Luz","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":60000},{"fecha":"2026-06-05","cat":"Servicios (luz/gas/agua/internet)","desc":"Agua","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":12500},{"fecha":"2026-06-05","cat":"Servicios (luz/gas/agua/internet)","desc":"Gas","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":17000},{"fecha":"2026-06-05","cat":"Servicios (luz/gas/agua/internet)","desc":"Interner","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":65000},{"fecha":"2026-06-05","cat":"Suscripciones","desc":"Gym","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":34000},{"fecha":"2026-06-05","cat":"Suscripciones","desc":"Disney","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":9800},{"fecha":"2026-06-05","cat":"Suscripciones","desc":"Comida Kila","medio":"MercadoPago","tipo":"Fijo","moneda":"ARS","monto":50000},{"fecha":"2026-06-05","cat":"Suscripciones","desc":"Cloude","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":32000},{"fecha":"2026-06-05","cat":"Suscripciones","desc":"Youtobe","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":10000},{"fecha":"2026-06-05","cat":"Supermercado","desc":"Comida","medio":"MercadoPago","tipo":"Fijo","moneda":"ARS","monto":150000},{"fecha":"2026-06-05","cat":"Tarjeta","desc":"Tarjeta","medio":"Crédito","tipo":"Fijo","moneda":"ARS","monto":90000},{"fecha":"2026-06-20","cat":"Suscripciones","desc":"Dlocal (Netflix/HBO/etc)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4940},{"fecha":"2026-06-20","cat":"Transferencia","desc":"Transferencia enviada Fenghua Zhong","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":18200},{"fecha":"2026-06-21","cat":"Otros","desc":"Pago con QR FOODCORNERSA017","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":88000},{"fecha":"2026-06-21","cat":"Transporte/Combustible","desc":"Uber (Ebanx)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":5681},{"fecha":"2026-06-22","cat":"Suscripciones","desc":"Dlocal (Netflix/HBO/etc)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4640},{"fecha":"2026-06-22","cat":"Transferencia","desc":"Transferencia enviada Training Center Sa","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":34000},{"fecha":"2026-06-23","cat":"Transporte/Combustible","desc":"Uber (Ebanx)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4790},{"fecha":"2026-06-23","cat":"Transferencia","desc":"Transferencia enviada Ruben Eulalio Ñañez","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":8300},{"fecha":"2026-06-23","cat":"Suscripciones","desc":"Dlocal (Netflix/HBO/etc)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4240},{"fecha":"2026-06-24","cat":"Suscripciones","desc":"Dlocal (Netflix/HBO/etc)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4300},{"fecha":"2026-06-25","cat":"Transporte/Combustible","desc":"Uber (Ebanx)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4290},{"fecha":"2026-06-25","cat":"Transferencia","desc":"Transferencia enviada Ruben Eulalio Ñañez","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":6500},{"fecha":"2026-06-25","cat":"Transporte/Combustible","desc":"Pago AUTOPISTA PROVINCIAL AP 01 BRI AUTOPISTA PROVINCIAL AP 01 BRI","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":840},{"fecha":"2026-06-25","cat":"Transporte/Combustible","desc":"Débito por deuda Peajes con TelePASE","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":729.84},{"fecha":"2026-06-25","cat":"Transporte/Combustible","desc":"Débito por deuda Peajes con TelePASE","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":110.16},{"fecha":"2026-06-26","cat":"Suscripciones","desc":"Apple (iCloud/App)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":9792.53},{"fecha":"2026-06-26","cat":"Transferencia","desc":"Transferencia enviada Fenghua Zhong","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":15800},{"fecha":"2026-06-27","cat":"Transporte/Combustible","desc":"Uber (Ebanx)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4731},{"fecha":"2026-06-27","cat":"Transporte/Combustible","desc":"Pago CORREDORES VIALES SA","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":1500},{"fecha":"2026-06-29","cat":"Transporte/Combustible","desc":"Uber (Ebanx)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4290},{"fecha":"2026-06-29","cat":"Transferencia","desc":"Transferencia enviada Ruben Eulalio Ñañez","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":7400},{"fecha":"2026-06-30","cat":"Transporte/Combustible","desc":"Pago con QR LA BLANCA S R L","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4200},{"fecha":"2026-06-30","cat":"Transferencia","desc":"Transferencia enviada Matteo Luciano Menendez","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":10000},{"fecha":"2026-06-30","cat":"Transferencia","desc":"Transferencia enviada Fenghua Zhong","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":15000},{"fecha":"2026-06-30","cat":"Transferencia","desc":"Transferencia enviada Luca Valentino Calfieri","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":5000},{"fecha":"2026-07-01","cat":"Transporte/Combustible","desc":"Uber","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":3590},{"fecha":"2026-07-02","cat":"Kiosco/Almacén","desc":"Kiosco/Almacén","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":8300},{"fecha":"2026-07-02","cat":"Transporte/Combustible","desc":"Uber","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":2890},{"fecha":"2026-07-02","cat":"Transporte/Combustible","desc":"Uber","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4690},{"fecha":"2026-07-02","cat":"Impuestos/Bancos","desc":"Cuota crédito MP","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":41480.21},{"fecha":"2026-07-03","cat":"Transporte/Combustible","desc":"Uber","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4090},{"fecha":"2026-07-03","cat":"Transferencia","desc":"Transferencia enviada Juan Ramon Cancinos","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":13000},{"fecha":"2026-07-04","cat":"Transporte/Combustible","desc":"Uber","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4990},{"fecha":"2026-07-05","cat":"Kiosco/Almacén","desc":"Kiosco/Almacén","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":24100},{"fecha":"2026-07-05","cat":"Transferencia","desc":"Transferencia enviada Luca Valentino Calfieri","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":5000},{"fecha":"2026-07-05","cat":"Suscripciones","desc":"Microsoft (365/Xbox/etc)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4938.91},{"fecha":"2026-07-06","cat":"Suscripciones","desc":"Apple (iCloud/App)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":1765.31},{"fecha":"2026-07-06","cat":"Transferencia","desc":"Transferencia enviada Juan Ramon Cancinos","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":5000},{"fecha":"2026-07-07","cat":"Transporte/Combustible","desc":"Uber","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":3690},{"fecha":"2026-07-07","cat":"Impuestos/Bancos","desc":"Cuota crédito MP","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":35746.56},{"fecha":"2026-07-07","cat":"Impuestos/Bancos","desc":"Pago anticipado crédito MP","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":11615.6},{"fecha":"2026-07-07","cat":"Transferencia","desc":"Transferencia enviada Veronica Gabriela Charras","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":17000},{"fecha":"2026-07-07","cat":"Inversión","desc":"Transferencia enviada Bull Market Brokers Sa","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":200000},{"fecha":"2026-07-07","cat":"Inversión","desc":"Compra USDT/cripto (Natacha)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":235200},{"fecha":"2026-07-08","cat":"Transferencia","desc":"Transferencia enviada Juan Ramon Cancinos","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":8000},{"fecha":"2026-07-08","cat":"Restaurantes/Delivery","desc":"Rappi delivery","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":94.38},{"fecha":"2026-07-08","cat":"Restaurantes/Delivery","desc":"Rappi delivery","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":14566},{"fecha":"2026-07-10","cat":"Kiosco/Almacén","desc":"Kiosco/Almacén","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":9400},{"fecha":"2026-07-10","cat":"Transporte/Combustible","desc":"Uber","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":3947},{"fecha":"2026-07-10","cat":"Transferencia","desc":"Transferencia enviada Luca Valentino Calfieri","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":5000},{"fecha":"2026-07-11","cat":"Transporte/Combustible","desc":"Uber","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":5106},{"fecha":"2026-07-11","cat":"Suscripciones","desc":"Anthropic Claude","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":32155.79},{"fecha":"2026-07-11","cat":"Transporte/Combustible","desc":"Peaje corredores viales","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":1500},{"fecha":"2026-07-11","cat":"Transporte/Combustible","desc":"Peaje corredores viales","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":1500},{"fecha":"2026-07-11","cat":"Transporte/Combustible","desc":"Peaje corredores viales","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":1500},{"fecha":"2026-07-11","cat":"Transporte/Combustible","desc":"Peaje corredores viales","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":1500},{"fecha":"2026-07-11","cat":"Restaurantes/Delivery","desc":"Rappi delivery","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":22648.5},{"fecha":"2026-07-12","cat":"Otros","desc":"Pago Max","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":13902.9},{"fecha":"2026-07-12","cat":"Otros","desc":"Pago con QR ORONO","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":58172},{"fecha":"2026-07-13","cat":"Transporte/Combustible","desc":"Uber","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":2347},{"fecha":"2026-07-13","cat":"Kiosco/Almacén","desc":"Kiosco/Almacén","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4600},{"fecha":"2026-07-14","cat":"Transporte/Combustible","desc":"Uber","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":5988},{"fecha":"2026-07-14","cat":"Transferencia","desc":"Transferencia enviada Juan Ramon Cancinos","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":8000},{"fecha":"2026-07-15","cat":"Transporte/Combustible","desc":"Uber","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":3590},{"fecha":"2026-07-15","cat":"Kiosco/Almacén","desc":"Kiosco/Almacén","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4500},{"fecha":"2026-07-15","cat":"Impuestos/Bancos","desc":"Pago Rapipago","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":228933.34},{"fecha":"2026-07-16","cat":"Otros","desc":"Pago con QR TRAININGCENTERSA067","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":3000},{"fecha":"2026-07-16","cat":"Transferencia","desc":"Transferencia enviada Magali Noelia Fregenal","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":6200},{"fecha":"2026-07-16","cat":"Transferencia","desc":"Transferencia enviada David Julian Kucinskas","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":10500},{"fecha":"2026-07-17","cat":"Suscripciones","desc":"Apple (iCloud/App)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":5912.19},{"fecha":"2026-07-18","cat":"Transporte/Combustible","desc":"Uber","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4390},{"fecha":"2026-07-18","cat":"Suscripciones","desc":"Disney+","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":23999},{"fecha":"2026-07-18","cat":"Kiosco/Almacén","desc":"Kiosco/Almacén","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":16400},{"fecha":"2026-07-18","cat":"Restaurantes/Delivery","desc":"Rappi delivery","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":17180.5},{"fecha":"2026-07-18","cat":"Transferencia","desc":"Transferencia enviada Yamila Macarena Palma","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":16000}],"ingresos":[{"fecha":"2026-06-05","fuente":"Trabajo","desc":"Sueldo","moneda":"ARS","monto":1214000},{"fecha":"2026-06-05","fuente":"Trabajo","desc":"Aguinaldo","moneda":"ARS","monto":607000},{"fecha":"2026-06-05","fuente":"Pension","desc":"Pension","moneda":"ARS","monto":100000},{"fecha":"2026-07-05","fuente":"Trabajo","desc":"Sueldo","moneda":"ARS","monto":1326000},{"fecha":"2026-07-05","fuente":"Pension","desc":"Pension","moneda":"ARS","monto":107000}],"inversiones":[{"activo":"BTC","tipo":"Cripto","cantidad":0.01162027,"precioCompra":59828.651163,"precioActual":65336.7},{"activo":"USDT","tipo":"Cripto","cantidad":112.80478035,"precioCompra":1,"precioActual":1},{"activo":"ETH","tipo":"Cripto","cantidad":0.0342701,"precioCompra":2059.72912,"precioActual":1910.43},{"activo":"XRP","tipo":"Cripto","cantidad":22.71726,"precioCompra":1.1181,"precioActual":1.1149},{"activo":"BRETT","tipo":"Cripto","cantidad":152.847,"precioCompra":0.0056,"precioActual":0.005185},{"activo":"ETC","tipo":"Cripto","cantidad":0.032218,"precioCompra":7.096,"precioActual":6.91},{"activo":"GGAL","tipo":"Acción AR","cantidad":10,"precioCompra":6367.093,"precioActual":7865},{"activo":"MELI","tipo":"CEDEAR","cantidad":2,"precioCompra":19649.905,"precioActual":24390},{"activo":"S14G6","tipo":"Bono AR","cantidad":96448,"precioCompra":1.039146,"precioActual":1.060094},{"activo":"Cash $","tipo":"Cash ARS","cantidad":25999.69,"precioCompra":1,"precioActual":1},{"activo":"MSFT","tipo":"CEDEAR","cantidad":2,"precioCompra":20727.025,"precioActual":20120},{"activo":"NVDA","tipo":"CEDEAR","cantidad":8,"precioCompra":13499.24375,"precioActual":13840}],"config":{"usdtArs":1550,"blueRate":1510}};
+
+var state = {
+  range: 'todo',
+  dark: true,
+  privacy: false,
+  blueRate: 0,
+  blueAt: '',
+  movimientos: [],
+  portafolio: [],
+  fileName: ''
+};
+var firstRender = true;
+
+function fmt(n) {
+  if (state.privacy) return '$ ••••';
+  var s = new Intl.NumberFormat('es-AR', {style:'currency', currency:'ARS', minimumFractionDigits:2, maximumFractionDigits:2}).format(Math.abs(n));
+  return (n < 0 ? '-' : '') + s;
+}
+function fmtUSD(n) {
+  if (state.privacy) return 'US$ ••••';
+  return 'US$ ' + new Intl.NumberFormat('es-AR', {minimumFractionDigits:0, maximumFractionDigits:0}).format(Math.round(n));
+}
+function colorFor(name) {
+  var h = 0;
+  for (var i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+  return PAL[h % PAL.length];
+}
+function mk(d) { return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0'); }
+function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function normText(s) { return ('' + (s == null ? '' : s)).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim(); }
+
+function animateNumber(el, to) {
+  if (state.privacy) { el.textContent = fmt(to); el.dataset.val = to; return; }
+  var from = parseFloat(el.dataset.val || '0');
+  if (!isFinite(from)) from = 0;
+  el.dataset.val = to;
+  if (from === to) { el.textContent = fmt(to); return; }
+  var start = null, dur = 600;
+  function ease(t) { return 1 - Math.pow(1 - t, 3); }
+  function step(ts) {
+    if (start === null) start = ts;
+    var p = Math.min(1, (ts - start) / dur);
+    el.textContent = fmt(from + (to - from) * ease(p));
+    if (p < 1) requestAnimationFrame(step);
+    else el.textContent = fmt(to);
+  }
+  requestAnimationFrame(step);
+}
+
+function loadData(data) {
+  var movimientos = [];
+  (data.gastos || []).forEach(function(g) {
+    movimientos.push({
+      fecha: new Date(g.fecha), categoria: g.cat, descripcion: g.desc,
+      icon: '💸', tipo: 'Gasto', monto: g.monto, medio: g.medio, moneda: g.moneda || 'ARS'
+    });
+  });
+  (data.ingresos || []).forEach(function(i) {
+    movimientos.push({
+      fecha: new Date(i.fecha), categoria: i.fuente, descripcion: i.desc,
+      icon: '💰', tipo: 'Ingreso', monto: i.monto, moneda: i.moneda || 'ARS'
+    });
+  });
+  var portafolio = (data.inversiones || []).map(function(inv) {
+    var valor = inv.cantidad * inv.precioActual;
+    var invertido = inv.cantidad * inv.precioCompra;
+    return {
+      activo: inv.activo, ticker: inv.activo, categoria: inv.tipo,
+      cantidad: inv.cantidad, precioCompra: inv.precioCompra, precioActual: inv.precioActual,
+      valor: valor, invertido: invertido, pnl: valor - invertido,
+      pnlPct: invertido ? ((valor/invertido)-1)*100 : 0
+    };
+  });
+  state.movimientos = movimientos;
+  state.portafolio = portafolio;
+  render();
+}
+
+function loadBlue() {
+  try {
+    var c = JSON.parse(localStorage.getItem('mf_blue') || 'null');
+    if (c && c.rate && (Date.now() - c.ts) < 6*3600*1000) {
+      state.blueRate = c.rate; state.blueAt = c.at; return;
+    }
+  } catch(e) {}
+  fetch('https://dolarapi.com/v1/dolares/blue').then(function(r){return r.json()}).then(function(d) {
+    var rate = d && (d.venta || d.compra);
+    if (rate) {
+      var at = d.fechaActualizacion ? new Date(d.fechaActualizacion).toLocaleDateString('es-AR',{day:'numeric',month:'short'}) : 'hoy';
+      state.blueRate = rate; state.blueAt = at;
+      try { localStorage.setItem('mf_blue', JSON.stringify({rate:rate, at:at, ts:Date.now()})); } catch(e) {}
+      render();
+    }
+  }).catch(function(){});
+}
+
+function assetLogo(it) {
+  var CRYPTO = {BTC:'bitcoin',ETH:'ethereum',USDT:'tether',USDC:'usd-coin',BNB:'binance-coin',ADA:'cardano',SOL:'solana',XRP:'xrp',DOGE:'dogecoin',DOT:'polkadot',MATIC:'polygon',LTC:'litecoin',AVAX:'avalanche',LINK:'chainlink',TRX:'tron',SHIB:'shiba-inu',DAI:'multi-collateral-dai',ETC:'ethereum-classic',BRETT:'brett'};
+  var cat = (it.categoria || '').toLowerCase(), name = (it.activo || '').toLowerCase();
+  var tk = (it.ticker || it.activo || '').replace(/[^A-Za-z0-9.]/g,'').toUpperCase();
+  var isCash = /cash|plazo|uva|fci|money|liquid|caja|ahorro|renta fija|fondo/.test(cat + ' ' + name) || cat === 'cash ars';
+  var isBond = /bono/.test(cat);
+  var isCrypto = cat === 'cripto' || /cripto|crypto/.test(cat + ' ' + name) || (tk && CRYPTO[tk]);
+  var url = '';
+  if (isCrypto && tk) {
+    var slug = CRYPTO[tk];
+    if (slug) url = 'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/128/color/' + tk.toLowerCase() + '.png';
+  } else if (!isCash && !isBond && tk && /^[A-Z.]{1,6}$/.test(tk)) {
+    url = 'https://financialmodelingprep.com/image-stock/' + tk + '.png';
+  }
+  var mono = (tk || it.activo || '?').replace(/[^A-Za-z0-9]/g,'').slice(0,3).toUpperCase() || '$';
+  return { url:url, mono:mono, cash:isCash, crypto:!!isCrypto, bond:!!isBond };
+}
+
+function render() {
+  var movs = state.movimientos.slice().filter(function(m){return m.fecha}).sort(function(a,b){return a.fecha-b.fecha});
+  var latest = movs.length ? movs[movs.length-1].fecha : new Date();
+  var nMonths = state.range === 'mes' ? 1 : state.range === '3m' ? 3 : state.range === '6m' ? 6 : 999;
+  var endM = new Date(latest.getFullYear(), latest.getMonth()+1, 0, 23, 59, 59);
+  var startM = new Date(latest.getFullYear(), latest.getMonth()-(nMonths-1), 1);
+  var prevStart = new Date(latest.getFullYear(), latest.getMonth()-(2*nMonths-1), 1);
+  var prevEnd = new Date(startM.getTime()-1);
+  var inRange = movs.filter(function(m){return m.fecha>=startM && m.fecha<=endM});
+  var inPrev = movs.filter(function(m){return m.fecha>=prevStart && m.fecha<=prevEnd});
+
+  function sum(arr, t) { return arr.filter(function(m){return m.tipo===t}).reduce(function(a,m){return a+m.monto},0); }
+  var ing = sum(inRange,'Ingreso'), gas = sum(inRange,'Gasto'), bal = ing - gas;
+  var pIng = sum(inPrev,'Ingreso'), pGas = sum(inPrev,'Gasto');
+
+  function delta(cur, prev) {
+    if (!prev) return 'sin comparación previa';
+    var d = Math.round((cur-prev)/prev*100);
+    var arrow = d > 0 ? '▲' : d < 0 ? '▼' : '–';
+    return arrow + ' ' + Math.abs(d) + '% vs. período anterior';
+  }
+
+  var periodLabel = nMonths === 1
+    ? MESL[latest.getMonth()] + ' ' + latest.getFullYear()
+    : (nMonths > 900 ? 'Todo el histórico' : 'Últimos ' + nMonths + ' meses');
+  document.getElementById('periodLabel').textContent = periodLabel;
+  animateNumber(document.getElementById('balanceVal'), bal);
+  document.getElementById('balanceNote').textContent = bal >= 0 ? 'Ahorraste este período' : 'Gastaste más de lo que ingresó';
+  animateNumber(document.getElementById('ingVal'), ing);
+  document.getElementById('ingDelta').textContent = delta(ing, pIng);
+  animateNumber(document.getElementById('gasVal'), gas);
+  document.getElementById('gasDelta').textContent = delta(gas, pGas);
+  var gCount = inRange.filter(function(m){return m.tipo==='Gasto'}).length;
+  var iCount = inRange.filter(function(m){return m.tipo==='Ingreso'}).length;
+  document.getElementById('footerNote').textContent = (state.fileName ? state.fileName + ' · ' : '') + gCount + ' gastos · ' + iCount + ' ingresos';
+
+  var series = [];
+  for (var i = 5; i >= 0; i--) {
+    var d = new Date(latest.getFullYear(), latest.getMonth()-i, 1);
+    var k = mk(d);
+    var mm = movs.filter(function(m){return mk(m.fecha)===k});
+    series.push({label: MES[d.getMonth()], ing: sum(mm,'Ingreso'), gas: sum(mm,'Gasto')});
+  }
+  renderChart(series);
+
+  var catGastos = inRange.filter(function(m){return m.tipo==='Gasto'});
+  var catMap = {};
+  catGastos.forEach(function(m){ catMap[m.categoria] = (catMap[m.categoria]||0) + m.monto; });
+  var cats = Object.keys(catMap).map(function(k){return {name:k, total:catMap[k]}}).sort(function(a,b){return b.total-a.total});
+  var maxCat = cats.length ? cats[0].total : 1;
+  document.getElementById('catTotal').textContent = fmt(gas) + ' en total';
+  document.getElementById('topCat').textContent = cats.length ? cats[0].name : '—';
+  document.getElementById('bottomCat').textContent = cats.length ? cats[cats.length-1].name : '—';
+  var catBars = document.getElementById('catBars');
+  catBars.innerHTML = '';
+  cats.forEach(function(c, ci) {
+    var col = colorFor(c.name);
+    var detMap = {};
+    catGastos.filter(function(m){return m.categoria===c.name}).forEach(function(m){
+      var k = m.descripcion || '(sin descripción)';
+      detMap[k] = (detMap[k]||0) + m.monto;
+    });
+    var det = Object.keys(detMap).map(function(k){return {name:k, total:detMap[k]}});
+    if (c.name === 'Transferencia') {
+      det.sort(function(a,b){ return a.name.localeCompare(b.name, 'es', {sensitivity:'base'}); });
+    } else {
+      det.sort(function(a,b){return b.total-a.total});
+    }
+    var searchHtml = '<div class="cat-search"><input type="text" class="cat-search-input" placeholder="Buscar en ' + esc(c.name) + '…"></div>';
+    var detRowsHtml = det.map(function(d){
+      return '<div class="cat-detail-row"><span>' + esc(d.name) + '</span><span class="amt">' + fmt(d.total) + '</span></div>';
+    }).join('');
+    var detHtml = searchHtml + '<div class="cat-detail-rows">' + detRowsHtml + '</div><div class="cat-search-empty" style="display:none">Sin resultados</div>';
+    var rowCls = firstRender ? ' style="animation:fadeup .4s ease both;animation-delay:' + (ci*0.04) + 's"' : '';
+    var fillCls = firstRender ? ' grow' : '';
+    var fillDelay = firstRender ? ';animation-delay:' + (ci*0.04) + 's' : '';
+    catBars.innerHTML += '<div class="cat-row"' + rowCls + '><div class="cat-head"><span class="cat-name">' + esc(c.name) + '<span class="cat-chevron">&#9662;</span></span><span class="cat-val amt">' + fmt(c.total) + '</span></div><div class="bar-track"><div class="bar-fill' + fillCls + '" style="width:' + Math.max(4, c.total/maxCat*100) + '%;background:' + col + fillDelay + '"></div></div><div class="cat-detail">' + detHtml + '</div></div>';
+  });
+
+  renderPortfolio();
+
+  var recent = inRange.slice().sort(function(a,b){return b.fecha-a.fecha}).slice(0, 30);
+  var movList = document.getElementById('movList');
+  movList.innerHTML = '';
+  recent.forEach(function(m, mi) {
+    var isIng = m.tipo === 'Ingreso';
+    var movCls = firstRender ? 'mov-row in' : 'mov-row';
+    var movDelay = firstRender ? ' style="animation-delay:' + Math.min(mi*0.025, 0.4) + 's"' : '';
+    movList.innerHTML += '<div class="' + movCls + '"' + movDelay + '><div class="mov-icon">' + (isIng ? '💰' : '💸') + '</div><div class="mov-info"><div class="mov-desc">' + esc(m.descripcion) + '</div><div class="mov-cat">' + esc(m.categoria) + ' · ' + m.fecha.getDate() + ' ' + MES[m.fecha.getMonth()] + '</div></div><div class="mov-amt amt' + (isIng ? ' ingreso' : '') + '">' + (isIng ? '+ ' : '') + fmt(m.monto) + '</div></div>';
+  });
+
+  if (state.privacy) document.getElementById('app').classList.add('privacy');
+  else document.getElementById('app').classList.remove('privacy');
+
+  firstRender = false;
+}
+
+function renderChart(series) {
+  var W=320, H=124, pl=4, pr=4, pt=10, pb=20;
+  var n = series.length;
+  var max = Math.max(1, Math.max.apply(null, series.map(function(s){return Math.max(s.ing,s.gas)})));
+  function X(i) { return pl + (n<=1?0.5:i/(n-1))*(W-pl-pr); }
+  function Y(v) { return pt + (1-v/max)*(H-pt-pb); }
+  function pts(key) { return series.map(function(s,i){return [X(i),Y(s[key])]}); }
+  function line(p) { return p.map(function(q,i){return (i?'L':'M')+q[0].toFixed(1)+' '+q[1].toFixed(1)}).join(' '); }
+  function area(p) { return line(p)+' L'+X(n-1).toFixed(1)+' '+(H-pb)+' L'+X(0).toFixed(1)+' '+(H-pb)+' Z'; }
+  var gp = pts('gas'), ip = pts('ing');
+
+  var svg = '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block" xmlns="http://www.w3.org/2000/svg">';
+  svg += '<defs><linearGradient id="gasg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#c0492f" stop-opacity=".16"/><stop offset="100%" stop-color="#c0492f" stop-opacity="0"/></linearGradient></defs>';
+  [0.5, 1].forEach(function(f) {
+    var y = pt + f*(H-pt-pb);
+    svg += '<line x1="'+pl+'" x2="'+(W-pr)+'" y1="'+y+'" y2="'+y+'" stroke="var(--line-soft)" stroke-width="1"/>';
+  });
+  var areaStyle = firstRender ? ' style="opacity:0;transition:opacity .6s ease .4s"' : '';
+  var ptStyle = firstRender ? ' style="opacity:0;transition:opacity .3s ease .9s"' : '';
+  svg += '<path d="'+area(gp)+'" fill="url(#gasg)"'+areaStyle+'/>';
+  svg += '<path class="chart-line" d="'+line(gp)+'" fill="none" stroke="#c0492f" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+  svg += '<path class="chart-line" d="'+line(ip)+'" fill="none" stroke="'+ACCENT+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+  svg += '<circle class="chart-pt" cx="'+X(n-1)+'" cy="'+Y(series[n-1].gas)+'" r="3.2" fill="#c0492f"'+ptStyle+'/>';
+  svg += '<circle class="chart-pt" cx="'+X(n-1)+'" cy="'+Y(series[n-1].ing)+'" r="3.2" fill="'+ACCENT+'"'+ptStyle+'/>';
+  series.forEach(function(s,i) {
+    svg += '<text x="'+X(i)+'" y="'+(H-6)+'" text-anchor="middle" font-size="10" fill="var(--muted)" font-family="\'DM Sans\',sans-serif">'+s.label+'</text>';
+  });
+  svg += '</svg>';
+  var container = document.getElementById('chartContainer');
+  container.innerHTML = svg;
+  if (!firstRender) return;
+  requestAnimationFrame(function() {
+    container.querySelectorAll('.chart-line').forEach(function(p) {
+      var len = p.getTotalLength();
+      p.style.strokeDasharray = len;
+      p.style.strokeDashoffset = len;
+      p.getBoundingClientRect();
+      p.style.transition = 'stroke-dashoffset .9s cubic-bezier(.16,1,.3,1)';
+      p.style.strokeDashoffset = '0';
+    });
+    container.querySelectorAll('path[fill^="url"]').forEach(function(a){ a.style.opacity = '1'; });
+    container.querySelectorAll('.chart-pt').forEach(function(c){ c.style.opacity = '1'; });
+  });
+}
+
+function renderPortfolio() {
+  var rate = state.blueRate || 0;
+  var pRaw = state.portafolio.filter(function(p){return p.valor>3}).map(function(p){return {p:p, logo:assetLogo(p)}});
+  if (!pRaw.length) { document.getElementById('portSection').style.display = 'none'; return; }
+  document.getElementById('portSection').style.display = '';
+
+  function arsOf(x) { return x.logo.crypto ? x.p.valor*(rate||0) : x.p.valor; }
+  var pTotalARS = pRaw.reduce(function(a,x){return a+arsOf(x)},0);
+  function mkItem(x) {
+    return {
+      name: x.p.activo, categoria: x.p.categoria, valor: x.p.valor, usd: x.logo.crypto,
+      ars: arsOf(x), pct: pTotalARS ? Math.round(arsOf(x)/pTotalARS*100) : 0,
+      color: colorFor(x.p.categoria + x.p.activo), logo: x.logo
+    };
+  }
+
+  var cryptoItems = pRaw.filter(function(x){return x.logo.crypto}).map(mkItem).sort(function(a,b){return b.ars-a.ars});
+  var finItems = pRaw.filter(function(x){return !x.logo.crypto}).map(mkItem).sort(function(a,b){return b.ars-a.ars});
+  var cryptoTotalUSD = cryptoItems.reduce(function(a,i){return a+i.valor},0);
+  var cryptoTotalARS = cryptoItems.reduce(function(a,i){return a+i.ars},0);
+  var finTotal = finItems.reduce(function(a,i){return a+i.valor},0);
+  var totalUSD = rate ? pTotalARS / rate : 0;
+  var finPct = pTotalARS ? Math.round(finTotal/pTotalARS*100) : 0;
+  var crPct = pTotalARS ? 100 - finPct : 0;
+
+  document.getElementById('portTotal').textContent = fmt(pTotalARS);
+
+  var FI = ACCENT, CR = '#c98a1a';
+  var html = '';
+  html += '<div class="port-bar">';
+  if (finItems.length) html += '<div style="width:'+finPct+'%;background:'+FI+';transition:width .5s ease"></div>';
+  if (cryptoItems.length) html += '<div style="width:'+crPct+'%;background:'+CR+';transition:width .5s ease"></div>';
+  html += '</div>';
+  html += '<div class="port-legend"><span><span class="dot" style="background:'+FI+'"></span>Mercado financiero '+finPct+'%</span><span>Cripto '+crPct+'%<span class="dot" style="background:'+CR+'"></span></span></div>';
+
+  function groupHTML(title, color, items, subtotal) {
+    if (!items.length) return '';
+    var h = '<div style="margin-top:4px"><div class="group-header"><div class="group-label"><span class="group-dot" style="background:'+color+'"></span><span class="group-name">'+title+'</span></div><div style="text-align:right">'+subtotal+'</div></div>';
+    items.forEach(function(it, ii) {
+      var rowCls = firstRender ? 'asset-row in' : 'asset-row';
+      var rowStyle = firstRender ? ' style="animation-delay:' + (ii*0.04) + 's"' : '';
+      h += '<div class="' + rowCls + '"' + rowStyle + '><div class="asset-logo" style="background:' + (it.logo.url ? 'transparent' : it.color) + '"><span>' + (it.logo.cash ? '$' : esc(it.logo.mono)) + '</span>';
+      if (it.logo.url) h += '<img src="'+it.logo.url+'" alt="" loading="lazy" onerror="this.style.display=\'none\'">';
+      h += '</div><div class="asset-info"><div class="asset-name">'+esc(it.name)+'</div><div class="asset-cat">'+esc(it.categoria)+'</div></div><div class="asset-vals"><div class="asset-price amt">' + (it.usd ? fmtUSD(it.valor) : fmt(it.valor)) + '</div><div class="asset-sub">' + (it.usd ? fmt(it.ars) + ' · ' + it.pct + '%' : it.pct + '%') + '</div></div></div>';
+    });
+    h += '</div>';
+    return h;
+  }
+
+  html += '<div style="display:flex;flex-direction:column;gap:16px">';
+  html += groupHTML('Mercado financiero', FI, finItems, '<span class="asset-price amt">' + fmt(finTotal) + '</span>');
+  html += groupHTML('Criptomonedas', CR, cryptoItems, '<div><div class="asset-price amt">' + fmtUSD(cryptoTotalUSD) + '</div><div class="asset-sub">' + (rate ? fmt(cryptoTotalARS) : '—') + '</div></div>');
+  html += '</div>';
+
+  html += '<div class="port-footer"><div><div class="port-footer-label">Total en dólares</div><div class="port-footer-sub">' + (rate ? 'Dólar blue $' + new Intl.NumberFormat('es-AR').format(rate) + (state.blueAt ? ' · ' + state.blueAt : '') : 'Cargando cotización…') + '</div></div><div class="port-footer-val amt">' + (rate ? fmtUSD(totalUSD) : '—') + '</div></div>';
+
+  document.getElementById('portContent').innerHTML = html;
+}
+
+function handleFile(file) {
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      if (!window.XLSX) { alert('La librería XLSX no cargó. Recargá la página.'); return; }
+      var wb = XLSX.read(new Uint8Array(ev.target.result), {type:'array', cellDates:true});
+      var result = parseWorkbook(wb);
+      if (result.movimientos.length) {
+        state.movimientos = result.movimientos;
+        state.portafolio = result.portafolio;
+        state.fileName = file.name;
+        document.getElementById('uploadStatus').textContent = file.name;
+        document.getElementById('footerNote').textContent = 'Datos de ' + file.name;
+        render();
+      } else {
+        alert('No se encontraron movimientos en el Excel. Asegurate de tener hojas "Gastos", "Ingresos" o "Inversiones".');
+      }
+    } catch(e) {
+      alert('No se pudo leer el Excel: ' + e.message);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function parseWorkbook(wb) {
+  function num(v) { if (typeof v === 'number') return v; var p = parseFloat(v); return isNaN(p) ? 0 : p; }
+  function rowsOf(name) { return wb.Sheets[name] ? XLSX.utils.sheet_to_json(wb.Sheets[name], {header:1, defval:'', cellDates:true, blankrows:false}) : []; }
+
+  // Las planillas suelen tener una columna A vacía de margen. Algunas hojas
+  // (sobre todo cuando se leen "en vivo" con SheetJS) arrancan el rango de
+  // celdas directamente en B si la columna A nunca tuvo contenido, lo que
+  // corre todos los índices de columna un lugar. Para no depender de una
+  // posición fija, buscamos cada columna por el texto de su encabezado.
+  var norm = normText;
+  function findHeader(grid, wanted, fallbackRow, fallbackCols) {
+    for (var ri = 0; ri < Math.min(grid.length, 10); ri++) {
+      var row = grid[ri] || [];
+      var cols = {};
+      for (var ci = 0; ci < row.length; ci++) {
+        var v = norm(row[ci]);
+        if (!v) continue;
+        for (var key in wanted) {
+          if (key in cols) continue;
+          if (wanted[key].indexOf(v) !== -1) cols[key] = ci;
+        }
+      }
+      if (Object.keys(cols).length >= Math.ceil(Object.keys(wanted).length * 0.6)) {
+        for (var k in fallbackCols) if (!(k in cols)) cols[k] = fallbackCols[k];
+        return { start: ri + 1, cols: cols };
+      }
+    }
+    return { start: fallbackRow, cols: fallbackCols };
+  }
+
+  var movimientos = [];
+  var gGrid = rowsOf('Gastos');
+  var gH = findHeader(gGrid,
+    {fecha:['fecha'], categoria:['categoria'], descripcion:['descripcion'], medio:['medio'], moneda:['moneda'], monto:['monto']},
+    4, {fecha:1, categoria:3, descripcion:4, medio:5, moneda:7, monto:8});
+  for (var i = gH.start; i < gGrid.length; i++) {
+    var r = gGrid[i];
+    var rawF = r[gH.cols.fecha], fecha = rawF instanceof Date ? rawF : (typeof rawF === 'string' && rawF ? new Date(rawF) : null);
+    if (fecha && isNaN(fecha.getTime())) fecha = null;
+    var cat = (''+(r[gH.cols.categoria]||'')).trim(), desc = (''+(r[gH.cols.descripcion]||'')).trim(), medio = (''+(r[gH.cols.medio]||'')).trim(), moneda = (''+(r[gH.cols.moneda]||'ARS')).trim()||'ARS';
+    var monto = num(r[gH.cols.monto]);
+    if (fecha && monto) movimientos.push({fecha:fecha, categoria:cat, descripcion:desc, icon:'💸', tipo:'Gasto', monto:monto, medio:medio, moneda:moneda});
+  }
+
+  var iGrid = rowsOf('Ingresos');
+  var iH = findHeader(iGrid,
+    {fecha:['fecha'], fuente:['fuente'], descripcion:['descripcion'], moneda:['moneda'], monto:['monto']},
+    4, {fecha:1, fuente:3, descripcion:4, moneda:5, monto:6});
+  for (var j = iH.start; j < iGrid.length; j++) {
+    var ri = iGrid[j];
+    var rawFI = ri[iH.cols.fecha], fechaI = rawFI instanceof Date ? rawFI : (typeof rawFI === 'string' && rawFI ? new Date(rawFI) : null);
+    if (fechaI && isNaN(fechaI.getTime())) fechaI = null;
+    var fuente = (''+(ri[iH.cols.fuente]||'')).trim(), descI = (''+(ri[iH.cols.descripcion]||'')).trim(), monedaI = (''+(ri[iH.cols.moneda]||'ARS')).trim()||'ARS';
+    var montoI = num(ri[iH.cols.monto]);
+    if (fechaI && montoI) movimientos.push({fecha:fechaI, categoria:fuente, descripcion:descI, icon:'💰', tipo:'Ingreso', monto:montoI, moneda:monedaI});
+  }
+
+  var invGrid = rowsOf('Inversiones');
+  var vH = findHeader(invGrid,
+    {activo:['activo'], tipo:['tipo'], cantidad:['cantidad'], preciocompra:['precio compra (usd)','precio compra'], precioactual:['precio actual (usd)','precio actual']},
+    4, {activo:1, tipo:2, cantidad:4, preciocompra:5, precioactual:6});
+  var portafolio = [];
+  var skipRe = /^──|^Subtotal|^RESUMEN|^Secci[oó]n|^Bybit|^Bull Market|^TOTAL/i;
+  for (var k = vH.start; k < invGrid.length; k++) {
+    var rv = invGrid[k]; if (!rv) continue;
+    var activo = (''+(rv[vH.cols.activo]||'')).trim(); if (!activo || skipRe.test(activo)) continue;
+    var tipo = (''+(rv[vH.cols.tipo]||'')).trim(), cantidad = num(rv[vH.cols.cantidad]), precioCompra = num(rv[vH.cols.preciocompra]), precioActual = num(rv[vH.cols.precioactual]);
+    if (!cantidad) continue;
+    var valor = cantidad * precioActual, invertido = cantidad * precioCompra;
+    portafolio.push({activo:activo, ticker:activo, categoria:tipo, cantidad:cantidad, precioCompra:precioCompra, precioActual:precioActual, valor:valor, invertido:invertido, pnl:valor-invertido, pnlPct:invertido?((valor/invertido)-1)*100:0});
+  }
+  return {movimientos:movimientos, portafolio:portafolio};
+}
+
+document.getElementById('btnTheme').addEventListener('click', function() {
+  state.dark = !state.dark;
+  document.body.setAttribute('data-theme', state.dark ? 'dark' : 'light');
+  var btn = document.getElementById('btnTheme');
+  btn.innerHTML = state.dark ? '&#9790;' : '&#9728;';
+  btn.style.transition = 'transform .4s cubic-bezier(.34,1.56,.64,1)';
+  btn.style.transform = 'rotate(360deg)';
+  setTimeout(function(){ btn.style.transform = 'rotate(0deg)'; btn.style.transition = 'none'; }, 400);
+  try { localStorage.setItem('mf_dark', state.dark ? '1' : '0'); } catch(e) {}
+});
+
+document.getElementById('btnPrivacy').addEventListener('click', function() {
+  state.privacy = !state.privacy;
+  document.getElementById('btnPrivacy').innerHTML = state.privacy ? '&#128584;' : '&#128065;';
+  render();
+});
+
+document.getElementById('rangeBar').addEventListener('click', function(e) {
+  var btn = e.target.closest('.range-btn');
+  if (!btn) return;
+  document.querySelectorAll('.range-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+  state.range = btn.dataset.range;
+  render();
+});
+
+document.getElementById('catBars').addEventListener('click', function(e) {
+  if (e.target.closest('.cat-detail')) return;
+  var row = e.target.closest('.cat-row');
+  if (!row) return;
+  row.classList.toggle('open');
+});
+
+document.getElementById('catBars').addEventListener('input', function(e) {
+  var input = e.target.closest('.cat-search-input');
+  if (!input) return;
+  var detail = input.closest('.cat-detail');
+  var q = normText(input.value);
+  var rowsWrap = detail.querySelector('.cat-detail-rows');
+  var any = false;
+  rowsWrap.querySelectorAll('.cat-detail-row').forEach(function(row) {
+    var name = row.querySelector('span').textContent;
+    var visible = normText(name).indexOf(q) !== -1;
+    row.style.display = visible ? '' : 'none';
+    if (visible) any = true;
+  });
+  detail.querySelector('.cat-search-empty').style.display = any ? 'none' : 'block';
+});
+
+document.getElementById('uploadLink').addEventListener('click', function() {
+  document.getElementById('fileInput').click();
+});
+document.getElementById('fileInput').addEventListener('change', function(e) {
+  var file = e.target.files && e.target.files[0];
+  if (file) handleFile(file);
+});
+
+// === FILE SYSTEM ACCESS API — conexión en vivo al Excel ===
+var _fileHandle = null;
+var _pollTimer = null;
+
+function idb() {
+  return new Promise(function(res, rej) {
+    var rq = indexedDB.open('mf_live', 1);
+    rq.onupgradeneeded = function() { rq.result.createObjectStore('handles'); };
+    rq.onsuccess = function() { res(rq.result); };
+    rq.onerror = function() { rej(rq.error); };
+  });
+}
+function saveHandle(h) {
+  return idb().then(function(db) {
+    return new Promise(function(res, rej) {
+      var tx = db.transaction('handles','readwrite');
+      tx.objectStore('handles').put(h, 'excel');
+      tx.oncomplete = res;
+      tx.onerror = function() { rej(tx.error); };
+    });
+  });
+}
+function loadHandle() {
+  return idb().then(function(db) {
+    return new Promise(function(res) {
+      var tx = db.transaction('handles','readonly');
+      var rq = tx.objectStore('handles').get('excel');
+      rq.onsuccess = function() { res(rq.result || null); };
+      rq.onerror = function() { res(null); };
+    });
+  });
+}
+function deleteHandle() {
+  return idb().then(function(db) {
+    return new Promise(function(res, rej) {
+      var tx = db.transaction('handles','readwrite');
+      tx.objectStore('handles').delete('excel');
+      tx.oncomplete = res;
+      tx.onerror = function() { rej(tx.error); };
+    });
+  }).catch(function() {});
+}
+
+function setLiveStatus(msg) {
+  var el = document.getElementById('liveStatus');
+  el.textContent = msg || '';
+}
+function showReconnectBanner() {
+  hideLockedBanner();
+  var b = document.getElementById('reconnectBanner');
+  b.style.display = 'flex';
+  setLiveStatus('');
+  setLiveIcon(false);
+}
+function hideReconnectBanner() {
+  document.getElementById('reconnectBanner').style.display = 'none';
+}
+function showLockedBanner() {
+  hideReconnectBanner();
+  var b = document.getElementById('lockedBanner');
+  b.style.display = 'flex';
+  setLiveStatus('');
+}
+function hideLockedBanner() {
+  document.getElementById('lockedBanner').style.display = 'none';
+}
+document.getElementById('retryBtn').addEventListener('click', function() {
+  readLiveFile();
+});
+document.getElementById('reconnectBtn').addEventListener('click', function() {
+  if (!_fileHandle) { connectLive(); return; }
+  _fileHandle.requestPermission({mode:'read'}).then(function(p) {
+    if (p === 'granted') {
+      hideReconnectBanner();
+      readLiveFile().then(function() { startPolling(); });
+    } else {
+      setLiveStatus('Permiso denegado — tocá de nuevo o usá ↻');
+    }
+  }).catch(function() {
+    setLiveStatus('No se pudo reconectar — tocá ↻ arriba');
+  });
+});
+function setLiveIcon(connected) {
+  var btn = document.getElementById('btnLive');
+  if (connected) {
+    btn.innerHTML = '&#128994;';
+    btn.style.color = '#1f7a4d';
+    btn.title = 'Conectado en vivo — tocá para reconectar';
+  } else {
+    btn.innerHTML = '&#8635;';
+    btn.style.color = 'var(--muted)';
+    btn.title = 'Conectar Excel en vivo';
+  }
+}
+
+function readLiveFile(attempt) {
+  attempt = attempt || 1;
+  if (!_fileHandle) return Promise.resolve();
+  return _fileHandle.getFile().then(function(file) {
+    return file.arrayBuffer().then(function(buf) {
+      if (!window.XLSX) return;
+      var wb = XLSX.read(new Uint8Array(buf), {type:'array', cellDates:true});
+      var result = parseWorkbook(wb);
+      if (result.movimientos.length) {
+        state.movimientos = result.movimientos;
+        state.portafolio = result.portafolio;
+        state.fileName = file.name;
+        document.getElementById('uploadStatus').textContent = file.name;
+        document.getElementById('footerNote').textContent = 'En vivo · ' + file.name;
+        setLiveIcon(true);
+        hideReconnectBanner();
+        hideLockedBanner();
+        setLiveStatus('Conectado en vivo · actualizado ' + new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}));
+        render();
+      }
+    });
+  }).catch(function(err) {
+    // Log real para poder diagnosticar sin adivinar la causa.
+    if (window.console) console.warn('readLiveFile: fallo intento ' + attempt, err && err.name, err && err.message);
+    if (err && err.name === 'NotAllowedError') {
+      showReconnectBanner();
+      return;
+    }
+    if (err && (err.name === 'NotFoundError' || err.name === 'InvalidStateError')) {
+      // El handle guardado ya no apunta a un archivo válido (OneDrive reemplazó el archivo
+      // al sincronizar, lo que invalida el handle). Reintentar con este mismo handle es inútil
+      // y causaba el loop de "reconectar" infinito — lo borramos de verdad y pedimos elegir
+      // el archivo de nuevo con el botón ↻.
+      _fileHandle = null;
+      hideReconnectBanner();
+      hideLockedBanner();
+      setLiveIcon(false);
+      setLiveStatus('OneDrive reemplazó el archivo al sincronizar — tocá ↻ arriba y elegí el Excel de nuevo (una sola vez).');
+      return deleteHandle();
+    }
+    // La mayoría de los bloqueos (Excel guardando, OneDrive subiendo el cambio) se resuelven
+    // solos en 1-4 segundos. Reintentamos antes de asustar al usuario con un banner.
+    if (attempt < 4) {
+      return new Promise(function(res) { setTimeout(res, 1000 * attempt); }).then(function() {
+        return readLiveFile(attempt + 1);
+      });
+    }
+    showLockedBanner();
+    setLiveIcon(false);
+  });
+}
+
+var _visListenerAdded = false;
+function startPolling() {
+  if (_pollTimer) clearInterval(_pollTimer);
+  _pollTimer = setInterval(function() { readLiveFile(); }, 10000);
+  if (!_visListenerAdded) {
+    _visListenerAdded = true;
+    document.addEventListener('visibilitychange', function() {
+      if (!document.hidden && _fileHandle) readLiveFile();
+    });
+  }
+}
+
+function connectLive() {
+  if (!window.showOpenFilePicker) {
+    setLiveStatus('Tu navegador no soporta conexión en vivo (usá Chrome/Edge en compu).');
+    return;
+  }
+  loadHandle().then(function(reconnectHandle) {
+    if (reconnectHandle) {
+      return reconnectHandle.requestPermission({mode:'read'}).then(function(perm) {
+        if (perm === 'granted') {
+          _fileHandle = reconnectHandle;
+          return readLiveFile().then(function() { startPolling(); });
+        }
+        throw new Error('denied');
+      });
+    }
+    throw new Error('no-handle');
+  }).catch(function() {
+    window.showOpenFilePicker({types:[{description:'Excel',accept:{'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':['.xlsx']}}]}).then(function(handles) {
+      var handle = handles[0];
+      _fileHandle = handle;
+      return saveHandle(handle).then(function() {
+        return readLiveFile().then(function() { startPolling(); });
+      });
+    }).catch(function() { /* usuario canceló */ });
+  });
+}
+
+function tryReconnectLive() {
+  if (!window.showOpenFilePicker) return;
+  loadHandle().then(function(handle) {
+    if (!handle) {
+      setLiveStatus('Tocá ↻ para conectar tu Excel en vivo');
+      return;
+    }
+    handle.queryPermission({mode:'read'}).then(function(perm) {
+      if (perm === 'granted') {
+        _fileHandle = handle;
+        readLiveFile().then(function() { startPolling(); });
+      } else {
+        _fileHandle = handle;
+        showReconnectBanner();
+      }
+    });
+  }).catch(function() {});
+}
+
+document.getElementById('btnLive').addEventListener('click', connectLive);
+
+// === INIT ===
+(function init() {
+  var dark = true;
+  try { dark = localStorage.getItem('mf_dark') !== '0'; } catch(e) {}
+  state.dark = dark;
+  document.body.setAttribute('data-theme', dark ? 'dark' : 'light');
+  document.getElementById('btnTheme').innerHTML = dark ? '&#9790;' : '&#9728;';
+  if (!window.showOpenFilePicker) {
+    document.getElementById('btnLive').style.display = 'none';
+  }
+  loadBlue();
+  loadData(EMBEDDED_DATA);
+  tryReconnectLive();
+})();
+
+})();
+</script>
+</body>
+</html>

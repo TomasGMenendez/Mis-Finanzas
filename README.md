@@ -9,6 +9,7 @@ Organizador de finanzas personales.
 - **Actualizar desde Bybit.bat** — hacé doble clic para traer tu portafolio real de Bybit y actualizar la planilla y el Dashboard.
 - **Cargar gastos de MercadoPago.bat** — arrastrá el CSV que descargás de MercadoPago y soltalo arriba de este archivo (no lo abras con doble clic). Carga los gastos nuevos a la planilla y actualiza el Dashboard.
 - **Programas** — carpeta con los scripts técnicos que hacen funcionar todo esto. No hace falta entrar ahí para el uso normal.
+- **Version anterior (no editar)** — copia de solo lectura del Dashboard como estaba antes del rediseño PRO. Es solo un recordatorio del avance, no se usa para nada.
 
 ## Uso típico
 

@@ -213,17 +213,17 @@
     },
     {
       "match": "juan ramon cancinos",
-      "categoria": "Regalos",
+      "categoria": "Transferencia",
       "descripcion": "Transferencia enviada Juan Ramon Cancinos"
     },
     {
       "match": "luca valentino calfieri",
-      "categoria": "Regalos",
+      "categoria": "Transferencia",
       "descripcion": "Transferencia enviada Luca Valentino Calfieri"
     },
     {
       "match": "veronica gabriela charras",
-      "categoria": "Regalos",
+      "categoria": "Transferencia",
       "descripcion": "Transferencia enviada Veronica Gabriela Charras"
     },
     {
@@ -233,12 +233,12 @@
     },
     {
       "match": "bull market",
-      "categoria": "Inversión / Transferencia",
+      "categoria": "Inversión",
       "descripcion": "Transferencia a Bull Market (invertir)"
     },
     {
       "match": "natacha de la penna",
-      "categoria": "Inversión / Transferencia",
+      "categoria": "Inversión",
       "descripcion": "Compra USDT/cripto (Natacha)"
     }
   ],
@@ -291,6 +291,6 @@
     }
   ],
   "categoria_default_gasto": "Otros",
-  "categoria_default_transferencia_persona": "Kiosco/Almacén",
+  "categoria_default_transferencia_persona": "Transferencia",
   "_nota_transferencias": "Cuando aparezca una transferencia a persona nueva NO listada arriba, preguntar a Toto qué es antes de asignar categoría."
 }

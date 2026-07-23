@@ -1,0 +1,9 @@
+Esta carpeta guarda la versión anterior del Dashboard, tal como estaba antes
+de pasar al diseño PRO (banca privada, animaciones, portafolio con logos y
+análisis de compra, noticias, etc).
+
+Es solo un recordatorio para ver el avance — no se usa para nada, no la
+edites ni la muevas. El dashboard que usás de verdad es el de la carpeta
+principal: "Mi Dashboard de Finanzas.html".
+
+Archivada el 2026-07-22.
