@@ -48,6 +48,18 @@ with open(BASE / "mis_reglas.json", encoding="utf-8") as f:
 with open(BASE / "config_toto.json", encoding="utf-8") as f:
     config = json.load(f)
 
+# Reglas con nombres reales de personas: viven aparte en mis_reglas_privado.json
+# (fuera de git, ver .gitignore) porque el repo puede ser público. Si existe,
+# se combinan con las reglas públicas; si no está, sigue funcionando igual
+# solo que sin esas reglas puntuales.
+priv_path = BASE / "mis_reglas_privado.json"
+if priv_path.exists():
+    with open(priv_path, encoding="utf-8") as f:
+        privadas = json.load(f)
+    reglas["reglas_gastos"] = privadas.get("reglas_gastos", []) + reglas.get("reglas_gastos", [])
+    reglas["reglas_ingresos"] = privadas.get("reglas_ingresos", []) + reglas.get("reglas_ingresos", [])
+    reglas["excluir"] = privadas.get("excluir", []) + reglas.get("excluir", [])
+
 # Cargar CSV
 df = pd.read_csv(csv_file, sep=";", skiprows=3, decimal=",", thousands=".")
 df["desc"] = df["TRANSACTION_TYPE"].str.strip()

@@ -1,6 +1,11 @@
 # Secretos / credenciales
 bybit_config.txt
 
+# Datos personales sensibles (nombre completo, empleador, estrategia
+# financiera, nombres de terceros) — el repo puede ser público
+Programas/config_toto.json
+Programas/mis_reglas_privado.json
+
 # Datos financieros crudos (extractos, portafolio, planillas)
 account_statement-*.csv
 sync_log.txt

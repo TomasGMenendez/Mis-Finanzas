@@ -2,16 +2,6 @@
   "_comentario": "Reglas de categorización automática. Cada regla matchea un patrón en la descripción del movimiento y le asigna categoría + descripción limpia.",
   "reglas_gastos": [
     {
-      "match": "ruben eulalio ñañez",
-      "categoria": "Kiosco/Almacén",
-      "descripcion": "Kiosco/Almacén"
-    },
-    {
-      "match": "fenghua zhong",
-      "categoria": "Kiosco/Almacén",
-      "descripcion": "Kiosco/Almacén"
-    },
-    {
       "match": "pago dlocal",
       "categoria": "Suscripciones",
       "descripcion": "Suscripción (Dlocal)"
@@ -212,21 +202,6 @@
       "descripcion": "Claro"
     },
     {
-      "match": "juan ramon cancinos",
-      "categoria": "Transferencia",
-      "descripcion": "Transferencia enviada Juan Ramon Cancinos"
-    },
-    {
-      "match": "luca valentino calfieri",
-      "categoria": "Transferencia",
-      "descripcion": "Transferencia enviada Luca Valentino Calfieri"
-    },
-    {
-      "match": "veronica gabriela charras",
-      "categoria": "Transferencia",
-      "descripcion": "Transferencia enviada Veronica Gabriela Charras"
-    },
-    {
       "match": "pago microsoft",
       "categoria": "Suscripciones",
       "descripcion": "Microsoft (365/Xbox/etc)"
@@ -235,11 +210,6 @@
       "match": "bull market",
       "categoria": "Inversión",
       "descripcion": "Transferencia a Bull Market (invertir)"
-    },
-    {
-      "match": "natacha de la penna",
-      "categoria": "Inversión",
-      "descripcion": "Compra USDT/cripto (Natacha)"
     }
   ],
   "reglas_ingresos": [
@@ -266,24 +236,8 @@
       "razon": "Movimiento interno entre sobres MP"
     },
     {
-      "match": "transferencia enviada tomas giacomo menendez",
-      "razon": "Autoenvío entre cuentas propias"
-    },
-    {
-      "match": "transferencia recibida tomas giacomo menendez",
-      "razon": "Autoenvío entre cuentas propias"
-    },
-    {
       "match": "fundacion temaiken",
       "razon": "Plata que va y vuelve, saldo neto cero, no es gasto real"
-    },
-    {
-      "match": "graciela mabel fava",
-      "razon": "Movimiento de inversión con esta persona, no es gasto de consumo"
-    },
-    {
-      "match": "menendez rodrigo emanuel",
-      "razon": "Toto pidio no contarla, no es gasto"
     },
     {
       "match": "devoluci",
