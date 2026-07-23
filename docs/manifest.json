@@ -1,0 +1,13 @@
+{
+  "name": "Finanzas Toto",
+  "short_name": "Finanzas",
+  "description": "Dashboard personal de finanzas — gastos, ingresos y portafolio",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b0a09",
+  "theme_color": "#0b0a09",
+  "icons": [
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

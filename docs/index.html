@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Finanzas — Toto · PRO</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23d9b36c'/><text x='50' y='72' font-size='60' text-anchor='middle' fill='%23151412' font-family='Georgia' font-weight='bold'>F</text></svg>">
+<!-- PWA / instalación en iPhone (Agregar a inicio) -->
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-512.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Finanzas">
+<meta name="theme-color" content="#0b0a09">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -360,6 +367,35 @@ html.privacy .amt{filter:blur(9px)}
 </style>
 </head>
 <body>
+<div id="pinGate" style="position:fixed;inset:0;z-index:9999;background:#0b0a09;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;font-family:'DM Sans',system-ui,sans-serif">
+  <div style="width:44px;height:44px;border-radius:12px;background:#d9b36c;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-weight:700;font-size:22px;color:#151412">F</div>
+  <div style="font-family:'DM Mono',ui-monospace,monospace;font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:#7d786c">Finanzas Toto</div>
+  <input id="pinInput" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" placeholder="••••" style="width:140px;text-align:center;letter-spacing:.6em;font-size:1.5rem;background:transparent;border:none;border-bottom:1px solid #33302a;color:#f4f0e6;padding:.6rem 0 .6rem .6em;outline:none;font-family:'DM Mono',ui-monospace,monospace">
+  <div id="pinError" style="font-size:.68rem;color:#cd7460;opacity:0;transition:opacity .2s;font-family:'DM Sans',system-ui,sans-serif">PIN incorrecto</div>
+</div>
+<script>
+(function(){
+  var PIN='1930';
+  var gate=document.getElementById('pinGate');
+  var input=document.getElementById('pinInput');
+  var err=document.getElementById('pinError');
+  setTimeout(function(){ input.focus(); }, 200);
+  input.addEventListener('input', function(){
+    if(input.value.length===4){
+      if(input.value===PIN){
+        gate.style.transition='opacity .3s ease';
+        gate.style.opacity='0';
+        setTimeout(function(){ gate.remove(); }, 300);
+      } else {
+        err.style.opacity='1';
+        input.value='';
+      }
+    } else {
+      err.style.opacity='0';
+    }
+  });
+})();
+</script>
 
 <nav>
   <div class="nav-in">

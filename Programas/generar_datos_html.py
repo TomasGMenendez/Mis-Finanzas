@@ -147,4 +147,15 @@ if n == 0:
 
 html_path.write_text(new_html, encoding="utf-8")
 print(f"Dashboard actualizado con datos reales: {len(gastos)} gastos, {len(ingresos)} ingresos, {len(inversiones)} inversiones.")
+
+# Copia para publicar (docs/index.html, versión iPhone/PWA). Si todavía no
+# existe esa carpeta no pasa nada — este paso es opcional y no afecta al
+# Dashboard principal.
+docs_path = RAIZ / "docs" / "index.html"
+if docs_path.exists():
+    docs_html = docs_path.read_text(encoding="utf-8")
+    new_docs_html, n2 = re.subn(r"var EMBEDDED_DATA = .*?;", lambda m: new_line, docs_html, count=1)
+    if n2:
+        docs_path.write_text(new_docs_html, encoding="utf-8")
+        print("Copia para el iPhone (docs/index.html) también actualizada.")
 print('Abrí "Mi Dashboard de Finanzas.html" haciendo doble clic para verlo con estos datos.')
