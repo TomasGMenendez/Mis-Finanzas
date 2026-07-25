@@ -6,10 +6,10 @@ bybit_config.txt
 Programas/config_toto.json
 Programas/mis_reglas_privado.json
 
-# Datos financieros crudos (extractos, portafolio, planillas)
+# Datos financieros crudos (extractos, portafolio, planillas, backups)
 account_statement-*.csv
 sync_log.txt
-Finanzas_Toto.xlsx
+*.xlsx
 Dashboard de finanzas personales.zip
 
 # Otros

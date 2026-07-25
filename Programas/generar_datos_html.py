@@ -108,8 +108,16 @@ for r in range(5, ws.max_row + 1):
 inversiones = []
 ws = wb["Inversiones"]
 skip_re = re.compile(r"^──|^Subtotal|^RESUMEN|^Secci[oó]n|^Bybit|^Bull Market|^TOTAL", re.I)
+# Debajo del portafolio real (cripto + Bull Market) puede haber otras
+# secciones con otro formato de columnas — hoy "RESUMEN CONSOLIDADO" e
+# "INVERSIONES FÍSICAS" (ej. mercadería para reventa). No son holdings de
+# portafolio, así que hay que dejar de leer filas apenas aparece cualquiera
+# de esas secciones, en vez de solo saltear esa fila puntual.
+stop_re = re.compile(r"^RESUMEN CONSOLIDADO|^── INVERSIONES", re.I)
 for r in range(5, ws.max_row + 1):
     activo = cell(ws, r, 2)
+    if activo and stop_re.match(str(activo)):
+        break
     if not activo or skip_re.match(str(activo)):
         continue
     cantidad = num(cell(ws, r, 5))
