@@ -114,6 +114,14 @@ skip_re = re.compile(r"^──|^Subtotal|^RESUMEN|^Secci[oó]n|^Bybit|^Bull Mark
 # portafolio, así que hay que dejar de leer filas apenas aparece cualquiera
 # de esas secciones, en vez de solo saltear esa fila puntual.
 stop_re = re.compile(r"^RESUMEN CONSOLIDADO|^── INVERSIONES", re.I)
+# Columna "Meta" (vincula un activo a un objetivo de la hoja Metas): se
+# busca por texto de encabezado en vez de posición fija, por si se agregan
+# o reordenan columnas más adelante.
+meta_col = None
+for c in range(1, ws.max_column + 1):
+    if str(cell(ws, 4, c) or "").strip().lower() == "meta":
+        meta_col = c
+        break
 for r in range(5, ws.max_row + 1):
     activo = cell(ws, r, 2)
     if activo and stop_re.match(str(activo)):
@@ -129,6 +137,86 @@ for r in range(5, ws.max_row + 1):
         "cantidad": cantidad,
         "precioCompra": num(cell(ws, r, 6)),
         "precioActual": num(cell(ws, r, 7)),
+        "meta": (str(cell(ws, r, meta_col)).strip() if meta_col and cell(ws, r, meta_col) else ""),
+    })
+
+# Inversiones físicas (mercadería para reventa, ej. "Bolsas comida perro"):
+# viven en su propia sub-sección de la hoja Inversiones, con otro formato de
+# columnas. Se calcula todo desde los datos crudos (cantidad, costo, precio
+# de venta) en vez de confiar en las fórmulas de Excel — esas quedan
+# cacheadas desactualizadas si el archivo no se reabre en Excel para
+# recalcular (mismo problema que tuvimos con la hoja Ingresos).
+ws = wb["Inversiones"]
+productos_fisicos = []
+ventas_fisicas = []
+inv_fis_start = None
+for r in range(1, ws.max_row + 1):
+    v = cell(ws, r, 2)
+    if v and re.match(r"^── INVERSIONES", str(v), re.I):
+        inv_fis_start = r
+        break
+if inv_fis_start:
+    # Sub-tabla de compras: busca el header "Producto" / "Fecha compra" y lee
+    # filas hasta la próxima fila vacía o de sección.
+    r = inv_fis_start + 1
+    while r <= ws.max_row and not (cell(ws, r, 2) == "Producto" and cell(ws, r, 3) == "Fecha compra"):
+        r += 1
+    r += 1
+    while r <= ws.max_row:
+        producto = cell(ws, r, 2)
+        if not producto or str(producto).strip() == "":
+            break
+        cant = num(cell(ws, r, 4))
+        costo = num(cell(ws, r, 5))
+        if cant:
+            productos_fisicos.append({
+                "producto": str(producto).strip(),
+                "fechaCompra": fecha_str(cell(ws, r, 3)),
+                "cantidad": cant,
+                "costoUnitario": costo,
+            })
+        r += 1
+
+    # Sub-tabla "Registro de ventas": busca el header "Fecha venta" y lee
+    # filas hasta "TOTAL VENTAS" o una fila vacía.
+    while r <= ws.max_row and cell(ws, r, 2) != "Fecha venta":
+        if cell(ws, r, 2) and re.match(r"^TOTAL", str(cell(ws, r, 2)), re.I):
+            break
+        r += 1
+    r += 1
+    while r <= ws.max_row:
+        fv = cell(ws, r, 2)
+        if fv and re.match(r"^TOTAL", str(fv), re.I):
+            break
+        cantidad_v = num(cell(ws, r, 4))
+        precio_v = num(cell(ws, r, 5))
+        if isinstance(fv, (datetime, date)) and cantidad_v and precio_v:
+            ventas_fisicas.append({
+                "fecha": fecha_str(fv),
+                "cantidad": cantidad_v,
+                "precioVenta": precio_v,
+            })
+        elif fv is None and not cantidad_v and not precio_v:
+            break
+        r += 1
+
+# Metas: objetivos de ahorro (ej. "Departamento", USDT 80.000). "Ahorrado"
+# es solo la parte manual (plata fuera del portafolio); lo que aportan los
+# activos vinculados (columna Meta de Inversiones) se suma en el Dashboard,
+# no acá, porque el precio en vivo no existe en el Excel.
+metas = []
+ws = wb["Metas"]
+for r in range(5, ws.max_row + 1):
+    nombre = cell(ws, r, 2)
+    if not nombre:
+        continue
+    metas.append({
+        "meta": str(nombre).strip(),
+        "categoria": cell(ws, r, 3) or "",
+        "fechaObjetivo": fecha_str(cell(ws, r, 4)),
+        "moneda": (cell(ws, r, 5) or "ARS").strip() if isinstance(cell(ws, r, 5), str) else (cell(ws, r, 5) or "ARS"),
+        "objetivo": num(cell(ws, r, 6)),
+        "ahorradoManual": num(cell(ws, r, 7)),
     })
 
 ws = wb["Config"]
@@ -139,6 +227,8 @@ data = {
     "gastos": gastos,
     "ingresos": ingresos,
     "inversiones": inversiones,
+    "inversionesFisicas": {"productos": productos_fisicos, "ventas": ventas_fisicas},
+    "metas": metas,
     "config": {"usdtArs": usdt_ars, "blueRate": blue_rate},
 }
 

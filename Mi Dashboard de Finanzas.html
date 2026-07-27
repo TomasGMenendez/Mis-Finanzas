@@ -217,6 +217,40 @@ main{padding-bottom:5rem}
 .buy-summary span{font-size:.66rem;color:var(--muted);font-family:var(--f-mono)}
 .buy-note{font-size:.68rem;color:var(--muted);margin-top:1rem;line-height:1.6}
 
+/* ================= MERCADERÍA (inversiones físicas) ================= */
+.mx-product{padding:1rem 0;border-bottom:1px solid var(--hair)}
+.mx-product:last-child{border-bottom:none}
+.mx-p-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:.5rem}
+.mx-p-name{font-size:.9rem;font-weight:600}
+.mx-p-sub{font-size:.68rem;color:var(--muted);font-family:var(--f-mono)}
+.mx-bar{position:relative;height:8px;border-radius:5px;background:var(--surface-2);overflow:hidden;margin-bottom:.5rem}
+.mx-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),color-mix(in srgb,var(--accent) 60%,transparent));border-radius:5px;transform-origin:left;transition:transform .8s var(--ease)}
+.mx-p-legend{display:flex;justify-content:space-between;font-size:.66rem;color:var(--muted);font-family:var(--f-mono)}
+.mx-sales{margin-top:.7rem}
+.mx-sale-row{display:flex;justify-content:space-between;font-size:.76rem;color:var(--ink-2);padding:.3rem 0;border-bottom:1px solid var(--hair)}
+.mx-sale-row:last-child{border-bottom:none}
+.mx-sale-row b{color:var(--good);font-weight:600}
+.mx-toggle{background:none;border:none;color:var(--accent);font-family:var(--f-mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;padding:.4rem 0;border-bottom:1px solid transparent;transition:border-color .2s}
+.mx-toggle:hover{border-color:var(--accent)}
+
+/* ================= METAS ================= */
+.goal-card{padding:1.1rem 0;border-bottom:1px solid var(--hair)}
+.goal-card:last-child{border-bottom:none}
+.goal-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:.3rem}
+.goal-name{font-size:.95rem;font-weight:700;font-family:var(--f-disp)}
+.goal-cat{font-size:.66rem;color:var(--muted);font-family:var(--f-mono);text-transform:uppercase;letter-spacing:.08em}
+.goal-nums{display:flex;justify-content:space-between;align-items:baseline;margin:.4rem 0 .5rem}
+.goal-saved{font-size:1.25rem;font-weight:700;font-family:var(--f-disp)}
+.goal-target{font-size:.76rem;color:var(--muted)}
+.goal-bar{position:relative;height:9px;border-radius:5px;background:var(--surface-2);overflow:hidden;margin-bottom:.5rem}
+.goal-bar i{display:block;height:100%;border-radius:5px;transform-origin:left;transition:transform .9s var(--ease);background:linear-gradient(90deg,var(--accent),color-mix(in srgb,var(--accent) 55%,transparent))}
+.goal-legend{display:flex;justify-content:space-between;font-size:.68rem;color:var(--muted);font-family:var(--f-mono)}
+.goal-pct{color:var(--accent);font-weight:700}
+.goal-src{margin-top:.7rem;display:flex;flex-wrap:wrap;gap:6px}
+.goal-chip{display:flex;align-items:center;gap:5px;background:var(--surface-2);border:1px solid var(--hair);border-radius:99px;padding:3px 10px 3px 6px;font-size:.68rem}
+.goal-chip .sw{width:7px;height:7px;border-radius:3px}
+.goal-empty{font-size:.72rem;color:var(--muted);margin-top:.6rem;line-height:1.5}
+
 /* ================= MOVEMENTS ================= */
 .mov-controls{display:flex;gap:1.1rem;align-items:center;margin-bottom:.7rem;flex-wrap:wrap}
 .mov-controls .mini-search{flex:1;min-width:160px;margin-bottom:0}
@@ -257,8 +291,9 @@ html.privacy .amt{filter:blur(9px)}
 }
 
 /* ================= VIEW SWITCHER ================= */
-.views{display:flex;gap:2px;background:var(--surface-2);border:1px solid var(--hair);border-radius:99px;padding:3px}
-.vbtn{border:none;background:transparent;color:var(--muted);font-family:var(--f-mono);font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;padding:.42rem .95rem;border-radius:99px;cursor:pointer;transition:background .25s,color .25s}
+.views{display:flex;gap:2px;background:var(--surface-2);border:1px solid var(--hair);border-radius:99px;padding:3px;overflow-x:auto;scrollbar-width:none;max-width:100%}
+.views::-webkit-scrollbar{display:none}
+.vbtn{border:none;background:transparent;color:var(--muted);font-family:var(--f-mono);font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;padding:.42rem .95rem;border-radius:99px;cursor:pointer;transition:background .25s,color .25s;flex:none;white-space:nowrap}
 .vbtn:hover{color:var(--ink-2)}
 .vbtn.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 8px rgba(0,0,0,.25)}
 .plink{background:none;border:none;color:var(--accent);font-family:var(--f-mono);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;padding:0 0 1px;border-bottom:1px solid transparent;transition:border-color .2s}
@@ -357,19 +392,20 @@ html.privacy .amt{filter:blur(9px)}
   .panel{padding:1.15rem}
 }
 @media(max-width:600px){
-  .nav-in{gap:6px;padding:0 12px}
+  .nav-in{gap:6px;padding:0 8px}
   .brand .label{display:none}
-  .brand b{font-size:.78rem}
-  .views{padding:2px}
-  .vbtn{padding:.36rem .46rem;font-size:.5rem;letter-spacing:.09em}
+  .brand b{font-size:.66rem}
+  .views{padding:2px;max-width:68vw}
+  .vbtn{padding:.3rem .24rem;font-size:.4rem;letter-spacing:0}
   .nav-r{gap:0}
-  .icon-btn{width:30px;height:30px;font-size:13px}
+  .icon-btn{width:26px;height:26px;font-size:11px}
 }
 @media(max-width:360px){
-  .vbtn{padding:.32rem .34rem;font-size:.46rem}
-  .nav-in{padding:0 8px}
-  .brand b{font-size:.7rem}
-  .icon-btn{width:27px;height:27px;font-size:12px}
+  .vbtn{padding:.26rem .16rem;font-size:.37rem}
+  .nav-in{padding:0 6px;gap:3px}
+  .views{max-width:66vw}
+  .brand b{font-size:.6rem}
+  .icon-btn{width:23px;height:23px;font-size:10px}
 }
 ::-webkit-scrollbar{width:0;height:0}
 </style>
@@ -382,6 +418,7 @@ html.privacy .amt{filter:blur(9px)}
     <div class="views">
       <button class="vbtn on" data-v="resumen">Resumen</button>
       <button class="vbtn" data-v="portfolio">Portafolio</button>
+      <button class="vbtn" data-v="inversiones">Inversiones</button>
       <button class="vbtn" data-v="news">Noticias</button>
     </div>
     <div class="nav-r">
@@ -553,8 +590,38 @@ html.privacy .amt{filter:blur(9px)}
     <div id="buyList"></div>
     <div class="buy-note">Criterio: compara tu precio promedio de compra contra el precio actual. En cripto se suma el máximo histórico y la variación de 24 h (CoinGecko, cache 6 h). El "breakeven" indica cuánto tiene que subir el precio para empatar tu compra. Análisis simple — no es asesoramiento financiero.</div>
   </section>
+
 </div>
 </div><!-- /viewPortfolio -->
+
+<div id="viewInversiones" style="display:none">
+<div class="wrap">
+  <header class="phead">
+    <span class="label">Objetivos y mercadería</span>
+    <div class="pt-total" style="font-size:clamp(1.7rem,4vw,2.4rem)">Mis Inversiones</div>
+    <div class="hero-note"><span>Tus metas de ahorro y tu mercadería para reventa — seguimiento aparte, no forman parte del portafolio financiero.</span></div>
+  </header>
+
+  <section class="panel" id="goalsPanel">
+    <div class="panel-head">
+      <h2>Mis metas</h2>
+      <span class="meta" id="goalsMeta"></span>
+    </div>
+    <div id="goalsList"></div>
+    <div class="buy-note">"Ahorrado" suma el valor en vivo de los activos que vinculaste a cada meta (columna "Meta" en la hoja Inversiones del Excel) más lo que cargaste a mano. Cripto y montos en pesos se convierten con el dólar blue del día.</div>
+  </section>
+
+  <section class="panel" style="margin-top:1.5rem" id="mxPanel">
+    <div class="panel-head">
+      <h2>Mis inversiones — mercadería</h2>
+      <span class="meta" id="mxMeta"></span>
+    </div>
+    <div class="pstats" id="mxStats"></div>
+    <div id="mxProducts" style="margin-top:1.5rem"></div>
+    <div class="buy-note">No suma al valor total del portafolio de arriba — es plata en mercadería para reventa, no una inversión financiera. La ganancia es solo de lo ya vendido; el stock restante se valúa a costo.</div>
+  </section>
+</div>
+</div><!-- /viewInversiones -->
 
 <div id="viewNews" style="display:none">
 <div class="wrap">
@@ -603,7 +670,7 @@ html.privacy .amt{filter:blur(9px)}
 <script>
 'use strict';
 /* ================= DATA ================= */
-var EMBEDDED_DATA = {"gastos":[{"fecha":"2026-06-05","cat":"Servicios (luz/gas/agua/internet)","desc":"Luz","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":60000},{"fecha":"2026-06-05","cat":"Servicios (luz/gas/agua/internet)","desc":"Agua","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":12500},{"fecha":"2026-06-05","cat":"Servicios (luz/gas/agua/internet)","desc":"Gas","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":17000},{"fecha":"2026-06-05","cat":"Servicios (luz/gas/agua/internet)","desc":"Interner","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":65000},{"fecha":"2026-06-05","cat":"Suscripciones","desc":"Gym","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":34000},{"fecha":"2026-06-05","cat":"Suscripciones","desc":"Disney","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":9800},{"fecha":"2026-06-05","cat":"Suscripciones","desc":"Comida Kila","medio":"MercadoPago","tipo":"Fijo","moneda":"ARS","monto":50000},{"fecha":"2026-06-05","cat":"Suscripciones","desc":"Cloude","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":32000},{"fecha":"2026-06-05","cat":"Suscripciones","desc":"Youtobe","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":10000},{"fecha":"2026-06-05","cat":"Supermercado","desc":"Comida","medio":"MercadoPago","tipo":"Fijo","moneda":"ARS","monto":150000},{"fecha":"2026-06-05","cat":"Tarjeta","desc":"Tarjeta","medio":"Crédito","tipo":"Fijo","moneda":"ARS","monto":90000},{"fecha":"2026-06-20","cat":"Suscripciones","desc":"Dlocal (Netflix/HBO/etc)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4940},{"fecha":"2026-06-20","cat":"Transferencia","desc":"Transferencia enviada Fenghua Zhong","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":18200},{"fecha":"2026-06-21","cat":"Otros","desc":"Pago con QR FOODCORNERSA017","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":88000},{"fecha":"2026-06-21","cat":"Transporte/Combustible","desc":"Uber (Ebanx)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":5681},{"fecha":"2026-06-22","cat":"Suscripciones","desc":"Dlocal (Netflix/HBO/etc)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4640},{"fecha":"2026-06-22","cat":"Transferencia","desc":"Transferencia enviada Training Center Sa","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":34000},{"fecha":"2026-06-23","cat":"Transporte/Combustible","desc":"Uber (Ebanx)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4790},{"fecha":"2026-06-23","cat":"Transferencia","desc":"Transferencia enviada Ruben Eulalio Ñañez","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":8300},{"fecha":"2026-06-23","cat":"Suscripciones","desc":"Dlocal (Netflix/HBO/etc)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4240},{"fecha":"2026-06-24","cat":"Suscripciones","desc":"Dlocal (Netflix/HBO/etc)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4300},{"fecha":"2026-06-25","cat":"Transporte/Combustible","desc":"Uber (Ebanx)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4290},{"fecha":"2026-06-25","cat":"Transferencia","desc":"Transferencia enviada Ruben Eulalio Ñañez","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":6500},{"fecha":"2026-06-25","cat":"Transporte/Combustible","desc":"Pago AUTOPISTA PROVINCIAL AP 01 BRI AUTOPISTA PROVINCIAL AP 01 BRI","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":840},{"fecha":"2026-06-25","cat":"Transporte/Combustible","desc":"Débito por deuda Peajes con TelePASE","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":729.84},{"fecha":"2026-06-25","cat":"Transporte/Combustible","desc":"Débito por deuda Peajes con TelePASE","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":110.16},{"fecha":"2026-06-26","cat":"Suscripciones","desc":"Apple (iCloud/App)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":9792.53},{"fecha":"2026-06-26","cat":"Transferencia","desc":"Transferencia enviada Fenghua Zhong","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":15800},{"fecha":"2026-06-27","cat":"Transporte/Combustible","desc":"Uber (Ebanx)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4731},{"fecha":"2026-06-27","cat":"Transporte/Combustible","desc":"Pago CORREDORES VIALES SA","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":1500},{"fecha":"2026-06-29","cat":"Transporte/Combustible","desc":"Uber (Ebanx)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4290},{"fecha":"2026-06-29","cat":"Transferencia","desc":"Transferencia enviada Ruben Eulalio Ñañez","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":7400},{"fecha":"2026-06-30","cat":"Transporte/Combustible","desc":"Pago con QR LA BLANCA S R L","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4200},{"fecha":"2026-06-30","cat":"Transferencia","desc":"Transferencia enviada Matteo Luciano Menendez","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":10000},{"fecha":"2026-06-30","cat":"Transferencia","desc":"Transferencia enviada Fenghua Zhong","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":15000},{"fecha":"2026-06-30","cat":"Transferencia","desc":"Transferencia enviada Luca Valentino Calfieri","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":5000},{"fecha":"2026-07-01","cat":"Transporte/Combustible","desc":"Uber","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":3590},{"fecha":"2026-07-02","cat":"Kiosco/Almacén","desc":"Kiosco/Almacén","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":8300},{"fecha":"2026-07-02","cat":"Transporte/Combustible","desc":"Uber","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":2890},{"fecha":"2026-07-02","cat":"Transporte/Combustible","desc":"Uber","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4690},{"fecha":"2026-07-02","cat":"Impuestos/Bancos","desc":"Cuota crédito MP","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":41480.21},{"fecha":"2026-07-03","cat":"Transporte/Combustible","desc":"Uber","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4090},{"fecha":"2026-07-03","cat":"Transferencia","desc":"Transferencia enviada Juan Ramon Cancinos","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":13000},{"fecha":"2026-07-04","cat":"Transporte/Combustible","desc":"Uber","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4990},{"fecha":"2026-07-05","cat":"Kiosco/Almacén","desc":"Kiosco/Almacén","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":24100},{"fecha":"2026-07-05","cat":"Transferencia","desc":"Transferencia enviada Luca Valentino Calfieri","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":5000},{"fecha":"2026-07-05","cat":"Suscripciones","desc":"Microsoft (365/Xbox/etc)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4938.91},{"fecha":"2026-07-06","cat":"Suscripciones","desc":"Apple (iCloud/App)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":1765.31},{"fecha":"2026-07-06","cat":"Transferencia","desc":"Transferencia enviada Juan Ramon Cancinos","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":5000},{"fecha":"2026-07-07","cat":"Transporte/Combustible","desc":"Uber","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":3690},{"fecha":"2026-07-07","cat":"Impuestos/Bancos","desc":"Cuota crédito MP","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":35746.56},{"fecha":"2026-07-07","cat":"Impuestos/Bancos","desc":"Pago anticipado crédito MP","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":11615.6},{"fecha":"2026-07-07","cat":"Transferencia","desc":"Transferencia enviada Veronica Gabriela Charras","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":17000},{"fecha":"2026-07-07","cat":"Inversión","desc":"Transferencia enviada Bull Market Brokers Sa","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":200000},{"fecha":"2026-07-07","cat":"Inversión","desc":"Compra USDT/cripto (Natacha)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":235200},{"fecha":"2026-07-08","cat":"Transferencia","desc":"Transferencia enviada Juan Ramon Cancinos","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":8000},{"fecha":"2026-07-08","cat":"Restaurantes/Delivery","desc":"Rappi delivery","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":94.38},{"fecha":"2026-07-08","cat":"Restaurantes/Delivery","desc":"Rappi delivery","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":14566},{"fecha":"2026-07-10","cat":"Kiosco/Almacén","desc":"Kiosco/Almacén","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":9400},{"fecha":"2026-07-10","cat":"Transporte/Combustible","desc":"Uber","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":3947},{"fecha":"2026-07-10","cat":"Transferencia","desc":"Transferencia enviada Luca Valentino Calfieri","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":5000},{"fecha":"2026-07-11","cat":"Transporte/Combustible","desc":"Uber","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":5106},{"fecha":"2026-07-11","cat":"Suscripciones","desc":"Anthropic Claude","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":32155.79},{"fecha":"2026-07-11","cat":"Transporte/Combustible","desc":"Peaje corredores viales","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":1500},{"fecha":"2026-07-11","cat":"Transporte/Combustible","desc":"Peaje corredores viales","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":1500},{"fecha":"2026-07-11","cat":"Transporte/Combustible","desc":"Peaje corredores viales","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":1500},{"fecha":"2026-07-11","cat":"Transporte/Combustible","desc":"Peaje corredores viales","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":1500},{"fecha":"2026-07-11","cat":"Restaurantes/Delivery","desc":"Rappi delivery","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":22648.5},{"fecha":"2026-07-12","cat":"Otros","desc":"Pago Max","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":13902.9},{"fecha":"2026-07-12","cat":"Otros","desc":"Pago con QR ORONO","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":58172},{"fecha":"2026-07-13","cat":"Transporte/Combustible","desc":"Uber","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":2347},{"fecha":"2026-07-13","cat":"Kiosco/Almacén","desc":"Kiosco/Almacén","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4600},{"fecha":"2026-07-14","cat":"Transporte/Combustible","desc":"Uber","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":5988},{"fecha":"2026-07-14","cat":"Transferencia","desc":"Transferencia enviada Juan Ramon Cancinos","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":8000},{"fecha":"2026-07-15","cat":"Transporte/Combustible","desc":"Uber","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":3590},{"fecha":"2026-07-15","cat":"Kiosco/Almacén","desc":"Kiosco/Almacén","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4500},{"fecha":"2026-07-15","cat":"Impuestos/Bancos","desc":"Pago Rapipago","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":228933.34},{"fecha":"2026-07-16","cat":"Otros","desc":"Pago con QR TRAININGCENTERSA067","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":3000},{"fecha":"2026-07-16","cat":"Transferencia","desc":"Transferencia enviada Magali Noelia Fregenal","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":6200},{"fecha":"2026-07-16","cat":"Transferencia","desc":"Transferencia enviada David Julian Kucinskas","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":10500},{"fecha":"2026-07-17","cat":"Suscripciones","desc":"Apple (iCloud/App)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":5912.19},{"fecha":"2026-07-18","cat":"Transporte/Combustible","desc":"Uber","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4390},{"fecha":"2026-07-18","cat":"Suscripciones","desc":"Disney+","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":23999},{"fecha":"2026-07-18","cat":"Kiosco/Almacén","desc":"Kiosco/Almacén","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":16400},{"fecha":"2026-07-18","cat":"Restaurantes/Delivery","desc":"Rappi delivery","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":17180.5},{"fecha":"2026-07-18","cat":"Transferencia","desc":"Transferencia enviada Yamila Macarena Palma","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":16000}],"ingresos":[{"fecha":"2026-06-05","fuente":"Trabajo","desc":"Sueldo","moneda":"ARS","monto":1214000},{"fecha":"2026-06-05","fuente":"Trabajo","desc":"Aguinaldo","moneda":"ARS","monto":607000},{"fecha":"2026-06-05","fuente":"Pension","desc":"Pension","moneda":"ARS","monto":100000},{"fecha":"2026-07-05","fuente":"Trabajo","desc":"Sueldo","moneda":"ARS","monto":1326000},{"fecha":"2026-07-05","fuente":"Pension","desc":"Pension","moneda":"ARS","monto":107000},{"fecha":"2026-07-05","fuente":"Comisiones","desc":"Comisiones","moneda":"ARS","monto":53000}],"inversiones":[{"activo":"BTC","tipo":"Cripto","cantidad":0.01199809,"precioCompra":59828.651163,"precioActual":64075.6},{"activo":"USDT","tipo":"Cripto","cantidad":75.33695075,"precioCompra":1,"precioActual":1},{"activo":"ETH","tipo":"Cripto","cantidad":0.03813787,"precioCompra":2059.72912,"precioActual":1860.34},{"activo":"XRP","tipo":"Cripto","cantidad":27.08289,"precioCompra":1.1181,"precioActual":1.093},{"activo":"BRETT","tipo":"Cripto","cantidad":152.847,"precioCompra":0.0056,"precioActual":0.00444},{"activo":"ETC","tipo":"Cripto","cantidad":0.032218,"precioCompra":7.096,"precioActual":6.555},{"activo":"GGAL","tipo":"Acción AR","cantidad":10,"precioCompra":6367.093,"precioActual":7865},{"activo":"MELI","tipo":"CEDEAR","cantidad":2,"precioCompra":19649.905,"precioActual":24390},{"activo":"S14G6","tipo":"Bono AR","cantidad":96448,"precioCompra":1.039146,"precioActual":1.060094},{"activo":"Cash $","tipo":"Cash ARS","cantidad":25999.69,"precioCompra":1,"precioActual":1},{"activo":"MSFT","tipo":"CEDEAR","cantidad":2,"precioCompra":20727.025,"precioActual":20120},{"activo":"NVDA","tipo":"CEDEAR","cantidad":8,"precioCompra":13499.24375,"precioActual":13840}],"config":{"usdtArs":1550,"blueRate":1510}};
+var EMBEDDED_DATA = {"gastos":[{"fecha":"2026-06-05","cat":"Servicios (luz/gas/agua/internet)","desc":"Luz","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":60000},{"fecha":"2026-06-05","cat":"Servicios (luz/gas/agua/internet)","desc":"Agua","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":12500},{"fecha":"2026-06-05","cat":"Servicios (luz/gas/agua/internet)","desc":"Gas","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":17000},{"fecha":"2026-06-05","cat":"Servicios (luz/gas/agua/internet)","desc":"Interner","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":65000},{"fecha":"2026-06-05","cat":"Suscripciones","desc":"Gym","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":34000},{"fecha":"2026-06-05","cat":"Suscripciones","desc":"Disney","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":9800},{"fecha":"2026-06-05","cat":"Suscripciones","desc":"Comida Kila","medio":"MercadoPago","tipo":"Fijo","moneda":"ARS","monto":50000},{"fecha":"2026-06-05","cat":"Suscripciones","desc":"Cloude","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":32000},{"fecha":"2026-06-05","cat":"Suscripciones","desc":"Youtobe","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":10000},{"fecha":"2026-06-05","cat":"Supermercado","desc":"Comida","medio":"MercadoPago","tipo":"Fijo","moneda":"ARS","monto":150000},{"fecha":"2026-06-05","cat":"Tarjeta","desc":"Tarjeta","medio":"Crédito","tipo":"Fijo","moneda":"ARS","monto":90000},{"fecha":"2026-06-20","cat":"Suscripciones","desc":"Dlocal (Netflix/HBO/etc)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4940},{"fecha":"2026-06-20","cat":"Transferencia","desc":"Transferencia enviada Fenghua Zhong","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":18200},{"fecha":"2026-06-21","cat":"Otros","desc":"Pago con QR FOODCORNERSA017","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":88000},{"fecha":"2026-06-21","cat":"Transporte/Combustible","desc":"Uber (Ebanx)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":5681},{"fecha":"2026-06-22","cat":"Suscripciones","desc":"Dlocal (Netflix/HBO/etc)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4640},{"fecha":"2026-06-22","cat":"Transferencia","desc":"Transferencia enviada Training Center Sa","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":34000},{"fecha":"2026-06-23","cat":"Transporte/Combustible","desc":"Uber (Ebanx)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4790},{"fecha":"2026-06-23","cat":"Transferencia","desc":"Transferencia enviada Ruben Eulalio Ñañez","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":8300},{"fecha":"2026-06-23","cat":"Suscripciones","desc":"Dlocal (Netflix/HBO/etc)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4240},{"fecha":"2026-06-24","cat":"Suscripciones","desc":"Dlocal (Netflix/HBO/etc)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4300},{"fecha":"2026-06-25","cat":"Transporte/Combustible","desc":"Uber (Ebanx)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4290},{"fecha":"2026-06-25","cat":"Transferencia","desc":"Transferencia enviada Ruben Eulalio Ñañez","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":6500},{"fecha":"2026-06-25","cat":"Transporte/Combustible","desc":"Pago AUTOPISTA PROVINCIAL AP 01 BRI AUTOPISTA PROVINCIAL AP 01 BRI","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":840},{"fecha":"2026-06-25","cat":"Transporte/Combustible","desc":"Débito por deuda Peajes con TelePASE","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":729.84},{"fecha":"2026-06-25","cat":"Transporte/Combustible","desc":"Débito por deuda Peajes con TelePASE","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":110.16},{"fecha":"2026-06-26","cat":"Suscripciones","desc":"Apple (iCloud/App)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":9792.53},{"fecha":"2026-06-26","cat":"Transferencia","desc":"Transferencia enviada Fenghua Zhong","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":15800},{"fecha":"2026-06-27","cat":"Transporte/Combustible","desc":"Uber (Ebanx)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4731},{"fecha":"2026-06-27","cat":"Transporte/Combustible","desc":"Pago CORREDORES VIALES SA","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":1500},{"fecha":"2026-06-29","cat":"Transporte/Combustible","desc":"Uber (Ebanx)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4290},{"fecha":"2026-06-29","cat":"Transferencia","desc":"Transferencia enviada Ruben Eulalio Ñañez","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":7400},{"fecha":"2026-06-30","cat":"Transporte/Combustible","desc":"Pago con QR LA BLANCA S R L","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4200},{"fecha":"2026-06-30","cat":"Transferencia","desc":"Transferencia enviada Matteo Luciano Menendez","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":10000},{"fecha":"2026-06-30","cat":"Transferencia","desc":"Transferencia enviada Fenghua Zhong","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":15000},{"fecha":"2026-06-30","cat":"Transferencia","desc":"Transferencia enviada Luca Valentino Calfieri","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":5000},{"fecha":"2026-07-01","cat":"Transporte/Combustible","desc":"Uber","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":3590},{"fecha":"2026-07-02","cat":"Kiosco/Almacén","desc":"Kiosco/Almacén","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":8300},{"fecha":"2026-07-02","cat":"Transporte/Combustible","desc":"Uber","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":2890},{"fecha":"2026-07-02","cat":"Transporte/Combustible","desc":"Uber","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4690},{"fecha":"2026-07-02","cat":"Impuestos/Bancos","desc":"Cuota crédito MP","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":41480.21},{"fecha":"2026-07-03","cat":"Transporte/Combustible","desc":"Uber","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4090},{"fecha":"2026-07-03","cat":"Transferencia","desc":"Transferencia enviada Juan Ramon Cancinos","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":13000},{"fecha":"2026-07-04","cat":"Transporte/Combustible","desc":"Uber","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4990},{"fecha":"2026-07-05","cat":"Kiosco/Almacén","desc":"Kiosco/Almacén","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":24100},{"fecha":"2026-07-05","cat":"Transferencia","desc":"Transferencia enviada Luca Valentino Calfieri","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":5000},{"fecha":"2026-07-05","cat":"Suscripciones","desc":"Microsoft (365/Xbox/etc)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4938.91},{"fecha":"2026-07-06","cat":"Suscripciones","desc":"Apple (iCloud/App)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":1765.31},{"fecha":"2026-07-06","cat":"Transferencia","desc":"Transferencia enviada Juan Ramon Cancinos","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":5000},{"fecha":"2026-07-07","cat":"Transporte/Combustible","desc":"Uber","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":3690},{"fecha":"2026-07-07","cat":"Impuestos/Bancos","desc":"Cuota crédito MP","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":35746.56},{"fecha":"2026-07-07","cat":"Impuestos/Bancos","desc":"Pago anticipado crédito MP","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":11615.6},{"fecha":"2026-07-07","cat":"Transferencia","desc":"Transferencia enviada Veronica Gabriela Charras","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":17000},{"fecha":"2026-07-07","cat":"Inversión","desc":"Transferencia enviada Bull Market Brokers Sa","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":200000},{"fecha":"2026-07-07","cat":"Inversión","desc":"Compra USDT/cripto (Natacha)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":235200},{"fecha":"2026-07-08","cat":"Transferencia","desc":"Transferencia enviada Juan Ramon Cancinos","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":8000},{"fecha":"2026-07-08","cat":"Restaurantes/Delivery","desc":"Rappi delivery","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":94.38},{"fecha":"2026-07-08","cat":"Restaurantes/Delivery","desc":"Rappi delivery","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":14566},{"fecha":"2026-07-10","cat":"Kiosco/Almacén","desc":"Kiosco/Almacén","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":9400},{"fecha":"2026-07-10","cat":"Transporte/Combustible","desc":"Uber","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":3947},{"fecha":"2026-07-10","cat":"Transferencia","desc":"Transferencia enviada Luca Valentino Calfieri","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":5000},{"fecha":"2026-07-11","cat":"Transporte/Combustible","desc":"Uber","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":5106},{"fecha":"2026-07-11","cat":"Suscripciones","desc":"Anthropic Claude","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":32155.79},{"fecha":"2026-07-11","cat":"Transporte/Combustible","desc":"Peaje corredores viales","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":1500},{"fecha":"2026-07-11","cat":"Transporte/Combustible","desc":"Peaje corredores viales","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":1500},{"fecha":"2026-07-11","cat":"Transporte/Combustible","desc":"Peaje corredores viales","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":1500},{"fecha":"2026-07-11","cat":"Transporte/Combustible","desc":"Peaje corredores viales","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":1500},{"fecha":"2026-07-11","cat":"Restaurantes/Delivery","desc":"Rappi delivery","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":22648.5},{"fecha":"2026-07-12","cat":"Otros","desc":"Pago Max","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":13902.9},{"fecha":"2026-07-12","cat":"Otros","desc":"Pago con QR ORONO","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":58172},{"fecha":"2026-07-13","cat":"Transporte/Combustible","desc":"Uber","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":2347},{"fecha":"2026-07-13","cat":"Kiosco/Almacén","desc":"Kiosco/Almacén","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4600},{"fecha":"2026-07-14","cat":"Transporte/Combustible","desc":"Uber","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":5988},{"fecha":"2026-07-14","cat":"Transferencia","desc":"Transferencia enviada Juan Ramon Cancinos","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":8000},{"fecha":"2026-07-15","cat":"Transporte/Combustible","desc":"Uber","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":3590},{"fecha":"2026-07-15","cat":"Kiosco/Almacén","desc":"Kiosco/Almacén","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4500},{"fecha":"2026-07-15","cat":"Impuestos/Bancos","desc":"Pago Rapipago","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":228933.34},{"fecha":"2026-07-16","cat":"Otros","desc":"Pago con QR TRAININGCENTERSA067","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":3000},{"fecha":"2026-07-16","cat":"Transferencia","desc":"Transferencia enviada Magali Noelia Fregenal","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":6200},{"fecha":"2026-07-16","cat":"Transferencia","desc":"Transferencia enviada David Julian Kucinskas","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":10500},{"fecha":"2026-07-17","cat":"Suscripciones","desc":"Apple (iCloud/App)","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":5912.19},{"fecha":"2026-07-18","cat":"Transporte/Combustible","desc":"Uber","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":4390},{"fecha":"2026-07-18","cat":"Suscripciones","desc":"Disney+","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":23999},{"fecha":"2026-07-18","cat":"Kiosco/Almacén","desc":"Kiosco/Almacén","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":16400},{"fecha":"2026-07-18","cat":"Restaurantes/Delivery","desc":"Rappi delivery","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":17180.5},{"fecha":"2026-07-18","cat":"Transferencia","desc":"Transferencia enviada Yamila Macarena Palma","medio":"MercadoPago","tipo":"Variable","moneda":"ARS","monto":16000}],"ingresos":[{"fecha":"2026-06-05","fuente":"Trabajo","desc":"Sueldo","moneda":"ARS","monto":1214000},{"fecha":"2026-06-05","fuente":"Trabajo","desc":"Aguinaldo","moneda":"ARS","monto":607000},{"fecha":"2026-06-05","fuente":"Pension","desc":"Pension","moneda":"ARS","monto":100000},{"fecha":"2026-07-05","fuente":"Trabajo","desc":"Sueldo","moneda":"ARS","monto":1326000},{"fecha":"2026-07-05","fuente":"Pension","desc":"Pension","moneda":"ARS","monto":107000},{"fecha":"2026-07-05","fuente":"Comisiones","desc":"Comisiones","moneda":"ARS","monto":53000},{"fecha":"2026-07-05","fuente":"Matteo/regalo","desc":"Matteo/regalo","moneda":"ARS","monto":35000}],"inversiones":[{"activo":"BTC","tipo":"Cripto","cantidad":0.01199814,"precioCompra":59828.651163,"precioActual":64755.2,"meta":"Departamento"},{"activo":"USDT","tipo":"Cripto","cantidad":75.33695075,"precioCompra":1,"precioActual":1,"meta":""},{"activo":"ETH","tipo":"Cripto","cantidad":0.03813828,"precioCompra":2059.72912,"precioActual":1914.45,"meta":""},{"activo":"XRP","tipo":"Cripto","cantidad":27.08289,"precioCompra":1.1181,"precioActual":1.1032,"meta":""},{"activo":"BRETT","tipo":"Cripto","cantidad":152.847,"precioCompra":0.0056,"precioActual":0.004732,"meta":""},{"activo":"ETC","tipo":"Cripto","cantidad":0.032218,"precioCompra":7.096,"precioActual":7.039,"meta":""},{"activo":"GGAL","tipo":"Acción AR","cantidad":10,"precioCompra":6367.093,"precioActual":7865,"meta":""},{"activo":"MELI","tipo":"CEDEAR","cantidad":2,"precioCompra":19649.905,"precioActual":24390,"meta":""},{"activo":"S14G6","tipo":"Bono AR","cantidad":96448,"precioCompra":1.039146,"precioActual":1.060094,"meta":"Play 5"},{"activo":"Cash $","tipo":"Cash ARS","cantidad":25999.69,"precioCompra":1,"precioActual":1,"meta":""},{"activo":"MSFT","tipo":"CEDEAR","cantidad":2,"precioCompra":20727.025,"precioActual":20120,"meta":""},{"activo":"NVDA","tipo":"CEDEAR","cantidad":8,"precioCompra":13499.24375,"precioActual":13840,"meta":""}],"inversionesFisicas":{"productos":[{"producto":"Bolsas comida perro","fechaCompra":"2026-07-23","cantidad":10,"costoUnitario":51456}],"ventas":[{"fecha":"2026-07-24","cantidad":1,"precioVenta":77000},{"fecha":"2026-07-24","cantidad":1,"precioVenta":77000},{"fecha":"2026-07-24","cantidad":1,"precioVenta":77000},{"fecha":"2026-07-24","cantidad":1,"precioVenta":77000},{"fecha":"2026-07-24","cantidad":1,"precioVenta":77000},{"fecha":"2026-07-24","cantidad":1,"precioVenta":77000},{"fecha":"2026-07-24","cantidad":1,"precioVenta":77000}]},"metas":[{"meta":"Departamento","categoria":"Compra grande","fechaObjetivo":"2030-12-31","moneda":"USDT","objetivo":80000,"ahorradoManual":0},{"meta":"Play 5","categoria":"Otro","fechaObjetivo":"2026-11-19","moneda":"ARS","objetivo":700000,"ahorradoManual":0}],"config":{"usdtArs":1550,"blueRate":1510}};
 var DATA = EMBEDDED_DATA;
 var FILE_LABEL = 'Finanzas_Toto.xlsx';
 
@@ -1140,7 +1207,8 @@ function getInv(){
     return {n:v.activo,cat:v.tipo,qty:v.cantidad,buy:v.precioCompra,cur:precioActual,val:val,cost:cost,
             pl:val-cost,plp:cost?((val/cost)-1)*100:0,crypto:crypto,live:live,
             stable:crypto&&/^(USDT|USDC|DAI)/i.test(v.activo),
-            cash:/cash/i.test(v.tipo||'')||/cash/i.test(v.activo||'')};
+            cash:/cash/i.test(v.tipo||'')||/cash/i.test(v.activo||''),
+            meta:(v.meta||'').trim()};
   }).filter(function(v){return v.val>0.5});
 }
 function blueRate(){ return S.blue||(DATA.config&&DATA.config.blueRate)||0; }
@@ -1279,6 +1347,116 @@ function renderBuy(){
     host.querySelectorAll('.delta-fill').forEach(function(f){f.style.transform='scaleX(1)'});
   });});
 }
+/* ================= METAS ================= */
+function toBase(v){ // convierte a USD: cripto ya está en USD, ARS se pasa a USD con el blue
+  var rate=blueRate();
+  return v.crypto ? v.val : (rate ? v.val/rate : 0);
+}
+function fromBase(usd, moneda){ // USD -> moneda de la meta
+  var rate=blueRate();
+  if (/^(usdt|usd|u\$s?)/i.test(moneda||'')) return usd;
+  return rate ? usd*rate : 0;
+}
+function fmtMoneda(n, moneda){
+  return /^(usdt|usd|u\$s?)/i.test(moneda||'') ? fmtUSD(n) : fmt(n);
+}
+function renderGoals(){
+  var metas = DATA.metas;
+  if (!metas || !metas.length){ $('goalsPanel').style.display='none'; return; }
+  $('goalsPanel').style.display='';
+
+  var inv = getInv();
+  $('goalsMeta').textContent = metas.length+' meta'+(metas.length===1?'':'s');
+
+  $('goalsList').innerHTML = metas.map(function(g, gi){
+    var norm_g = norm(g.meta);
+    var linked = inv.filter(function(v){ return v.meta && norm(v.meta)===norm_g; });
+    var ahorradoInvUSD = linked.reduce(function(a,v){ return a+toBase(v); }, 0);
+    var ahorradoInv = fromBase(ahorradoInvUSD, g.moneda);
+    var ahorradoTotal = ahorradoInv + (g.ahorradoManual||0);
+    var pct = g.objetivo ? (ahorradoTotal/g.objetivo*100) : 0;
+    var falta = Math.max(0, g.objetivo-ahorradoTotal);
+    var barPct = Math.min(100, Math.max(0,pct));
+
+    var hoy=new Date(), obj = g.fechaObjetivo?pDate(g.fechaObjetivo):null;
+    var diasFalta = obj ? Math.ceil((obj-hoy)/86400000) : null;
+    var fechaTxt = obj ? (diasFalta>0 ? 'faltan '+diasFalta+' días · '+obj.getDate()+' '+MES[obj.getMonth()]+' '+obj.getFullYear() : 'venció') : '';
+
+    var chips = linked.map(function(v){
+      var vGoal = fromBase(toBase(v), g.moneda);
+      return '<span class="goal-chip"><span class="sw" style="background:'+catColor(v.cat+v.n)+'"></span>'+esc(v.n)+' aporta '+fmtMoneda(vGoal,g.moneda)+'</span>';
+    }).join('');
+
+    return '<div class="goal-card">'
+      +'<div class="goal-top"><span class="goal-name">'+esc(g.meta)+'</span><span class="goal-cat">'+esc(g.categoria||'')+'</span></div>'
+      +'<div class="goal-nums"><span class="goal-saved amt">'+fmtMoneda(ahorradoTotal,g.moneda)+'</span><span class="goal-target">de '+fmtMoneda(g.objetivo,g.moneda)+'</span></div>'
+      +'<div class="goal-bar"><i style="width:'+barPct+'%;transform:scaleX(0);transition-delay:'+(gi*.1)+'s"></i></div>'
+      +'<div class="goal-legend"><span class="goal-pct">'+pct.toFixed(1)+'% completado</span><span>'+(falta>0?'faltan '+fmtMoneda(falta,g.moneda):'¡objetivo cumplido! 🎉')+(fechaTxt?' · '+fechaTxt:'')+'</span></div>'
+      +(linked.length ? '<div class="goal-src">'+chips+'</div>' : '<div class="goal-empty">Sin activos vinculados todavía — poné "'+esc(g.meta)+'" en la columna Meta de algún activo en Inversiones, o cargá un monto manual en la hoja Metas.</div>');
+  }).join('');
+
+  requestAnimationFrame(function(){
+    document.querySelectorAll('.goal-bar i').forEach(function(i){i.style.transform='scaleX(1)'});
+  });
+}
+/* ================= MERCADERÍA (inversiones físicas) ================= */
+function renderMx(){
+  var mx = DATA.inversionesFisicas;
+  if (!mx || !mx.productos || !mx.productos.length){ $('mxPanel').style.display='none'; return; }
+  $('mxPanel').style.display='';
+
+  var ventas = mx.ventas || [];
+  var totalInvertido=0, totalIngreso=0, totalVendidoUd=0, totalPL=0, totalCostoVendido=0;
+
+  var host = $('mxProducts');
+  host.innerHTML = mx.productos.map(function(p){
+    // Cada venta se le atribuye al producto (hoy es 1 solo producto; si hay
+    // varios en el futuro y no se puede distinguir por fila, se reparte
+    // sobre el primero — mejor eso que perder el dato).
+    var vendidoUd = ventas.reduce(function(a,v){return a+v.cantidad},0);
+    var ingreso = ventas.reduce(function(a,v){return a+v.cantidad*v.precioVenta},0);
+    var invertido = p.cantidad * p.costoUnitario;
+    var costoVendido = vendidoUd * p.costoUnitario;
+    var pl = ingreso - costoVendido;
+    var stockUd = Math.max(0, p.cantidad - vendidoUd);
+    var pct = p.cantidad ? Math.min(100, vendidoUd/p.cantidad*100) : 0;
+
+    totalInvertido += invertido; totalIngreso += ingreso; totalVendidoUd += vendidoUd;
+    totalPL += pl; totalCostoVendido += costoVendido;
+
+    var salesHtml = ventas.map(function(v,i){
+      var d = pDate(v.fecha);
+      return '<div class="mx-sale-row"><span>'+d.getDate()+' '+MES[d.getMonth()]+' · '+fmtQty(v.cantidad)+' un.</span><b class="amt">'+fmt(v.cantidad*v.precioVenta)+'</b></div>';
+    }).join('');
+
+    return '<div class="mx-product">'
+      +'<div class="mx-p-top"><span class="mx-p-name">'+esc(p.producto)+'</span><span class="mx-p-sub">costo '+fmt(p.costoUnitario)+' /un.</span></div>'
+      +'<div class="mx-bar"><i style="width:'+pct+'%;transform:scaleX(0)"></i></div>'
+      +'<div class="mx-p-legend"><span>'+fmtQty(vendidoUd)+' de '+fmtQty(p.cantidad)+' vendidas</span><span>quedan '+fmtQty(stockUd)+' (vale '+fmt(stockUd*p.costoUnitario)+' a costo)</span></div>'
+      +(ventas.length?'<div class="mx-sales"><button class="mx-toggle" data-mxtoggle>'+ventas.length+' ventas registradas ▾</button><div class="mx-sales-list" style="display:none">'+salesHtml+'</div></div>':'');
+  }).join('');
+
+  requestAnimationFrame(function(){
+    host.querySelectorAll('.mx-bar i').forEach(function(i){i.style.transform='scaleX(1)'});
+  });
+
+  var plPct = totalCostoVendido ? (totalPL/totalCostoVendido*100) : 0;
+  $('mxMeta').textContent = mx.productos.length+' producto'+(mx.productos.length===1?'':'s')+' · '+ventas.length+' ventas';
+  $('mxStats').innerHTML =
+    '<div class="pstat"><span class="label">Invertido</span><b class="amt">'+fmt(totalInvertido)+'</b><span>'+fmtQty(mx.productos.reduce(function(a,p){return a+p.cantidad},0))+' unidades compradas</span></div>'
+    +'<div class="pstat"><span class="label">Vendido</span><b class="amt">'+fmt(totalIngreso)+'</b><span>'+fmtQty(totalVendidoUd)+' unidades</span></div>'
+    +'<div class="pstat"><span class="label">Ganancia realizada</span><b class="amt" style="color:'+(totalPL>=0?'var(--good)':'var(--bad)')+'">'+(totalPL>=0?'+':'')+fmt(totalPL)+'</b><span>'+(plPct>=0?'+':'')+plPct.toFixed(1)+'% sobre lo vendido</span></div>'
+    +'<div class="pstat"><span class="label">Stock restante</span><b class="amt">'+fmtQty(Math.max(0,mx.productos.reduce(function(a,p){return a+p.cantidad},0)-totalVendidoUd))+'</b><span>unidades sin vender</span></div>';
+}
+document.addEventListener('click', function(e){
+  var t = e.target.closest('[data-mxtoggle]');
+  if (!t) return;
+  var list = t.nextElementSibling;
+  var open = list.style.display !== 'none';
+  list.style.display = open ? 'none' : 'block';
+  t.textContent = t.textContent.replace(open?'▴':'▾', open?'▾':'▴');
+});
+
 function cgSave(){
   try{localStorage.setItem('pro_cg3',JSON.stringify({data:CG,ts:Date.now()}));}catch(e){}
 }
@@ -1505,6 +1683,11 @@ function parseWorkbookToData(wb){
   var inversiones=[];
   var invGrid=rowsOf('Inversiones');
   var vH=findHeader(invGrid,{activo:['activo'],tipo:['tipo'],cantidad:['cantidad'],preciocompra:['precio compra (usd)','precio compra'],precioactual:['precio actual (usd)','precio actual']},4,{activo:1,tipo:2,cantidad:4,preciocompra:5,precioactual:6});
+  // Columna "Meta" (vincula un activo a un objetivo): opcional, se busca
+  // aparte para no afectar la detección de las columnas principales.
+  var metaCol=-1;
+  var metaHeaderRow=invGrid[vH.start-1]||[];
+  for (var mc=0; mc<metaHeaderRow.length; mc++){ if (norm(metaHeaderRow[mc])==='meta'){ metaCol=mc; break; } }
   var skipRe=/^──|^Subtotal|^RESUMEN|^Secci[oó]n|^Bybit|^Bull Market|^TOTAL/i;
   var stopRe=/^RESUMEN CONSOLIDADO|^── INVERSIONES/i;
   for (var k=vH.start; k<invGrid.length; k++){
@@ -1514,10 +1697,93 @@ function parseWorkbookToData(wb){
     if(!activo||skipRe.test(activo)) continue;
     var tipo=(''+(rv[vH.cols.tipo]||'')).trim(), cantidad=num(rv[vH.cols.cantidad]), precioCompra=num(rv[vH.cols.preciocompra]), precioActual=num(rv[vH.cols.precioactual]);
     if (!cantidad) continue;
-    inversiones.push({activo:activo, tipo:tipo, cantidad:cantidad, precioCompra:precioCompra, precioActual:precioActual});
+    var meta=(metaCol!==-1 ? (''+(rv[metaCol]||'')).trim() : '');
+    inversiones.push({activo:activo, tipo:tipo, cantidad:cantidad, precioCompra:precioCompra, precioActual:precioActual, meta:meta});
   }
 
-  return {gastos:gastos, ingresos:ingresos, inversiones:inversiones, config:(DATA&&DATA.config)||{}};
+  // Inversiones físicas (mercadería para reventa, ej. "Bolsas comida perro"):
+  // sub-sección aparte de la hoja, con otro formato de columnas. Se busca
+  // por texto de encabezado (no posición fija) por el mismo motivo que el
+  // resto de esta función, y se recalcula todo desde los datos crudos.
+  var productosFisicos=[], ventasFisicas=[];
+  var invFisStart=-1;
+  for (var fi=0; fi<invGrid.length && invFisStart===-1; fi++){
+    var frow=invGrid[fi]||[];
+    for (var fc=0; fc<frow.length; fc++){
+      if (/^── INVERSIONES/i.test(''+(frow[fc]||''))){ invFisStart=fi; break; }
+    }
+  }
+  if (invFisStart!==-1){
+    var pRow=-1, pCol=-1;
+    for (var fi2=invFisStart+1; fi2<Math.min(invFisStart+10,invGrid.length) && pRow===-1; fi2++){
+      var row2=invGrid[fi2]||[];
+      for (var c2=0;c2<row2.length;c2++){
+        if (norm(row2[c2])==='producto'){ pRow=fi2; pCol=c2; break; }
+      }
+    }
+    if (pRow!==-1){
+      var r3=pRow+1;
+      while (r3<invGrid.length){
+        var row3=invGrid[r3]||[];
+        var producto=(''+(row3[pCol]||'')).trim();
+        if (!producto) break;
+        var fcRaw=row3[pCol+1], fechaC = fcRaw instanceof Date ? fcRaw : (typeof fcRaw==='string'&&fcRaw?new Date(fcRaw):null);
+        var cant=num(row3[pCol+2]), costo=num(row3[pCol+3]);
+        if (cant) productosFisicos.push({producto:producto, fechaCompra:(fechaC&&!isNaN(fechaC.getTime()))?isoDate(fechaC):null, cantidad:cant, costoUnitario:costo});
+        r3++;
+      }
+      var vRow=-1, vCol=-1, stopHit=false;
+      for (var fi3=r3; fi3<invGrid.length && vRow===-1 && !stopHit; fi3++){
+        var row4=invGrid[fi3]||[];
+        for (var c4=0;c4<row4.length;c4++){
+          if (/^total/i.test(''+(row4[c4]||''))){ stopHit=true; break; }
+          if (norm(row4[c4])==='fecha venta'){ vRow=fi3; vCol=c4; break; }
+        }
+      }
+      if (vRow!==-1){
+        var r5=vRow+1;
+        while (r5<invGrid.length){
+          var row5=invGrid[r5]||[];
+          var fv=row5[vCol];
+          if (fv && /^total/i.test(''+fv)) break;
+          var fechaV = fv instanceof Date ? fv : (typeof fv==='string'&&fv?new Date(fv):null);
+          var cantV=num(row5[vCol+2]), precioV=num(row5[vCol+3]);
+          if (fechaV && !isNaN(fechaV.getTime()) && cantV && precioV){
+            ventasFisicas.push({fecha:isoDate(fechaV), cantidad:cantV, precioVenta:precioV});
+          } else if (!fv && !cantV && !precioV){
+            break;
+          }
+          r5++;
+        }
+      }
+    }
+  }
+
+  // Metas: objetivos de ahorro. "Ahorrado" leído acá es solo la parte
+  // manual — lo que aportan los activos vinculados se suma en el render,
+  // con precios en vivo.
+  var metas=[];
+  var metasGrid=rowsOf('Metas');
+  var gH=findHeader(metasGrid,{meta:['meta'],categoria:['categoria'],fecha:['fecha objetivo'],moneda:['moneda'],objetivo:['objetivo'],ahorrado:['ahorrado (manual)','ahorrado']},4,{meta:1,categoria:2,fecha:3,moneda:4,objetivo:5,ahorrado:6});
+  for (var mi=gH.start; mi<metasGrid.length; mi++){
+    var mrow=metasGrid[mi]; if(!mrow) continue;
+    var nombre=(''+(mrow[gH.cols.meta]||'')).trim();
+    if (!nombre) continue;
+    var fRaw=mrow[gH.cols.fecha], fObj = fRaw instanceof Date ? fRaw : (typeof fRaw==='string'&&fRaw?new Date(fRaw):null);
+    metas.push({
+      meta:nombre,
+      categoria:(''+(mrow[gH.cols.categoria]||'')).trim(),
+      fechaObjetivo:(fObj&&!isNaN(fObj.getTime()))?isoDate(fObj):null,
+      moneda:(''+(mrow[gH.cols.moneda]||'ARS')).trim()||'ARS',
+      objetivo:num(mrow[gH.cols.objetivo]),
+      ahorradoManual:num(mrow[gH.cols.ahorrado]),
+    });
+  }
+
+  return {gastos:gastos, ingresos:ingresos, inversiones:inversiones,
+          inversionesFisicas:{productos:productosFisicos, ventas:ventasFisicas},
+          metas:metas,
+          config:(DATA&&DATA.config)||{}};
 }
 
 function handleFile(file){
@@ -1676,6 +1942,7 @@ function setView(v){
   document.querySelectorAll('.vbtn').forEach(function(b){b.classList.toggle('on',b.dataset.v===v)});
   $('viewResumen').style.display=v==='resumen'?'':'none';
   $('viewPortfolio').style.display=v==='portfolio'?'':'none';
+  $('viewInversiones').style.display=v==='inversiones'?'':'none';
   $('viewNews').style.display=v==='news'?'':'none';
   window.scrollTo({top:0,behavior:'smooth'});
   if(v==='resumen') moveInk();
@@ -1781,7 +2048,7 @@ document.querySelectorAll('[data-r]').forEach(function(el){io.observe(el);});
 
 /* ================= INIT ================= */
 function renderAll(){
-  renderHero();renderChart();renderCats();renderInsights();renderPort();renderPortView();renderBuy();renderMovs();
+  renderHero();renderChart();renderCats();renderInsights();renderPort();renderPortView();renderBuy();renderGoals();renderMx();renderMovs();
   S.first=false;
 }
 document.addEventListener('click',function(e){
@@ -1797,6 +2064,7 @@ document.addEventListener('click',function(e){
   moveInk();
   tryReconnectLive();
   if(location.hash==='#portfolio') setView('portfolio');
+  if(location.hash==='#inversiones') setView('inversiones');
   if(location.hash==='#news') setView('news');
 })();
 </script>
