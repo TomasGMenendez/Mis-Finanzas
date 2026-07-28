@@ -31,7 +31,7 @@ ensure("openpyxl")
 import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.styles import Font
-from datetime import datetime
+from datetime import date, datetime
 
 if len(sys.argv) < 2:
     print("Uso: python mercadopago_processor.py <archivo_csv>")
@@ -65,6 +65,18 @@ df = pd.read_csv(csv_file, sep=";", skiprows=3, decimal=",", thousands=".")
 df["desc"] = df["TRANSACTION_TYPE"].str.strip()
 df["fecha"] = pd.to_datetime(df["RELEASE_DATE"], format="%d-%m-%Y")
 df["amt"] = df["TRANSACTION_NET_AMOUNT"]
+
+def normalize_sort_value(value):
+    if isinstance(value, datetime):
+        return value
+    if isinstance(value, pd.Timestamp):
+        return value.to_pydatetime()
+    if hasattr(value, "to_pydatetime"):
+        return value.to_pydatetime()
+    if isinstance(value, (date, datetime)):
+        return datetime.combine(value, datetime.min.time())
+    return value
+
 
 def clasificar(desc, amt):
     d = desc.lower()
@@ -145,19 +157,34 @@ row = last_row + 1
 # importar si el monto cambió. Repetir el mismo gasto a la misma persona en
 # días distintos es válido y debe cargarse igual.
 existentes = set()
+# Además del dedupe por fecha+descripcion (arriba), se guarda fecha+monto
+# de cada fila ya cargada. Sirve para avisar (sin bloquear) cuando una
+# transferencia nueva coincide en fecha y monto con una ya cargada pero con
+# otra descripcion — el caso real que paso con "Bull Market": la misma
+# transferencia quedo cargada dos veces con textos distintos y no se detecto
+# hasta que Toto lo noto a mano en el Dashboard. La columna "Posible
+# duplicado" del Excel (formula en Gastos, col L) cubre también las cargas
+# manuales directas en la hoja, que este script nunca ve.
+existentes_monto = {}
 for r in range(5, last_row + 1):
     fecha_v = gas.cell(r, 2).value
     desc_v = gas.cell(r, 5).value
+    monto_v = gas.cell(r, 9).value
     if fecha_v is not None:
         existentes.add((str(fecha_v)[:10], (desc_v or '').strip().lower()))
+        existentes_monto.setdefault((str(fecha_v)[:10], monto_v), []).append(desc_v or '')
 
 agregados = 0
 saltados = 0
+avisos_monto = []
 for _, r_ in pd.concat([gastos, revisar]).iterrows():
     key = (str(r_["fecha"].date()), r_["fuente"][:100].strip().lower())
     if is_duplicate_existing(existentes, r_["fecha"].date(), r_["fuente"][:100], abs(r_["amt"])):
         saltados += 1
         continue
+    mkey = (str(r_["fecha"].date()), abs(r_["amt"]))
+    if mkey in existentes_monto:
+        avisos_monto.append((r_["fecha"].date(), abs(r_["amt"]), r_["fuente"][:100], existentes_monto[mkey]))
     gas.cell(row, 2, r_["fecha"].date()).number_format = 'dd/mm/yyyy'
     gas.cell(row, 4, r_["categoria"])
     gas.cell(row, 5, r_["fuente"][:100])
@@ -192,7 +219,7 @@ for r in range(5, last_row2 + 1):
         'moneda': gas.cell(r, 8).value,
         'monto': gas.cell(r, 9).value,
     })
-filas_todas.sort(key=lambda f: f['fecha'])
+filas_todas.sort(key=lambda f: normalize_sort_value(f['fecha']))
 
 for r in range(5, last_row2 + 1):
     for c in range(2, 11):
@@ -214,3 +241,9 @@ wb.save(xlsx_path)
 print(f"\n✅ Cargado al Excel: {xlsx_path}")
 print(f"   {agregados} filas nuevas · {saltados} saltadas por ser duplicado (misma fecha + persona/descripcion)")
 print(f"   Hoja reordenada por fecha (vieja→nueva), {len(filas_todas)} filas totales.")
+
+if avisos_monto:
+    print("\n⚠️  Posibles duplicados (misma fecha y monto, distinta descripcion) — revisalos a mano:")
+    for fecha_a, monto_a, desc_nueva, descs_existentes in avisos_monto:
+        print(f"  - {fecha_a} | ${monto_a:>10,.2f} | nueva: \"{desc_nueva}\" · ya existia: \"{descs_existentes[0]}\"")
+    print("  (también quedan marcados en la hoja Gastos, columna 'Posible duplicado')")
