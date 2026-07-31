@@ -223,6 +223,9 @@ ws = wb["Config"]
 usdt_ars = num(cell(ws, 5, 3)) or 1000
 blue_rate = num(cell(ws, 6, 3)) or usdt_ars
 
+wb.close()
+tmp_path.unlink(missing_ok=True)
+
 data = {
     "gastos": gastos,
     "ingresos": ingresos,
@@ -231,9 +234,6 @@ data = {
     "metas": metas,
     "config": {"usdtArs": usdt_ars, "blueRate": blue_rate},
 }
-
-wb.close()
-tmp_path.unlink(missing_ok=True)
 
 html_path = RAIZ / "Mi Dashboard de Finanzas.html"
 html = html_path.read_text(encoding="utf-8")
