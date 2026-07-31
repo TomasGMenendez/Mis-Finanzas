@@ -822,6 +822,11 @@ rebuildMovs();
    dibujar todo. Tras la primera carga S.first ya es false, así que estos
    refrescos no repiten las animaciones de entrada. */
 function loadData(d, label){
+  /* El historial del portafolio (para "Evolución del portafolio") no vive
+     en el Excel — lo arma snapshot_portafolio.py aparte. La lectura en vivo
+     del Excel (SheetJS) nunca lo va a traer, así que si no viene en los
+     datos nuevos, se conserva el que ya estaba cargado en vez de perderlo. */
+  if(!d.historialPortafolio) d.historialPortafolio = DATA.historialPortafolio || [];
   DATA = d;
   if(label) FILE_LABEL = label;
   rebuildMovs();
