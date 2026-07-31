@@ -1187,8 +1187,17 @@ function renderPortHistoryChart(gran){
   document.querySelectorAll('.ph-gran').forEach(function(b){ b.classList.toggle('on', b.dataset.g===PH_GRAN); });
   $('portHistMeta').textContent = daily.length+' día'+(daily.length===1?'':'s')+' de historial';
 
-  if(pts.length<2){
-    $('portHistChart').innerHTML='<div style="padding:1.6rem 0;text-align:center;color:var(--muted);font-size:.78rem">Todavía no hay suficiente historial para mostrar una evolución.<br>Se completa solo, un valor por día, sin que tengas que hacer nada.</div>';
+  if(pts.length<1){
+    $('portHistChart').innerHTML='<div style="padding:1.6rem 0;text-align:center;color:var(--muted);font-size:.78rem">Todavía no hay ningún dato guardado.<br>Se completa solo, un valor por día, sin que tengas que hacer nada.</div>';
+    $('portHistTip').classList.remove('show');
+    return;
+  }
+  if(pts.length===1){
+    $('portHistChart').innerHTML='<div style="padding:1.6rem 0;text-align:center">'
+      +'<div class="label" style="margin-bottom:.5rem">Primer dato guardado ('+phLabel(PH_GRAN,pDate(pts[0].f))+')</div>'
+      +'<div class="pt-total num amt" style="font-size:2rem">'+fmt(pts[0].v)+'</div>'
+      +'<div style="color:var(--muted);font-size:.78rem;margin-top:.7rem">Con un segundo dato ya va a aparecer la línea de evolución.</div>'
+      +'</div>';
     $('portHistTip').classList.remove('show');
     return;
   }
