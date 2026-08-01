@@ -422,7 +422,6 @@ html.privacy .amt{filter:blur(9px)}
       <button class="vbtn" data-v="news">Noticias</button>
     </div>
     <div class="nav-r">
-      <button class="icon-btn" id="btnLive" title="Conectar Excel en vivo">↻</button>
       <button class="icon-btn" id="btnTheme" title="Cambiar tema">◐</button>
       <button class="icon-btn" id="btnPrivacy" title="Ocultar montos">👁</button>
     </div>
@@ -444,16 +443,6 @@ html.privacy .amt{filter:blur(9px)}
     <a id="uploadLink">cargá tu archivo Excel</a>
     <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none">
   </div>
-  <div class="live-status" id="liveStatus"></div>
-  <div class="banner warn" id="reconnectBanner">
-    <span>⚠️ Se perdió la conexión en vivo con el Excel — los datos pueden estar desactualizados.</span>
-    <button id="reconnectBtn">Reconectar</button>
-  </div>
-  <div class="banner err" id="lockedBanner">
-    <span>🔒 No se pudo leer el archivo (puede estar abierto en Excel o sincronizando con OneDrive).</span>
-    <button id="retryBtn">Reintentar</button>
-  </div>
-
   <header class="hero">
     <div data-r>
       <span class="label">Balance del período</span>
@@ -1950,131 +1939,6 @@ $('fileInput').addEventListener('change', function(e){
   if (file) handleFile(file);
 });
 
-/* ---- Conexión en vivo (File System Access API) ---- */
-var _fileHandle=null, _pollTimer=null, _visListenerAdded=false;
-
-function idbOpen(){
-  return new Promise(function(res,rej){
-    var rq=indexedDB.open('mf_live_pro',1);
-    rq.onupgradeneeded=function(){ rq.result.createObjectStore('handles'); };
-    rq.onsuccess=function(){ res(rq.result); };
-    rq.onerror=function(){ rej(rq.error); };
-  });
-}
-function saveHandle(h){
-  return idbOpen().then(function(db){
-    return new Promise(function(res,rej){
-      var tx=db.transaction('handles','readwrite');
-      tx.objectStore('handles').put(h,'excel');
-      tx.oncomplete=res; tx.onerror=function(){rej(tx.error)};
-    });
-  });
-}
-function loadHandle(){
-  return idbOpen().then(function(db){
-    return new Promise(function(res){
-      var tx=db.transaction('handles','readonly');
-      var rq=tx.objectStore('handles').get('excel');
-      rq.onsuccess=function(){ res(rq.result||null); };
-      rq.onerror=function(){ res(null); };
-    });
-  });
-}
-function deleteHandle(){
-  return idbOpen().then(function(db){
-    return new Promise(function(res,rej){
-      var tx=db.transaction('handles','readwrite');
-      tx.objectStore('handles').delete('excel');
-      tx.oncomplete=res; tx.onerror=function(){rej(tx.error)};
-    });
-  }).catch(function(){});
-}
-
-function setLiveStatus(msg){ $('liveStatus').textContent=msg||''; }
-function showReconnectBanner(){ hideLockedBanner(); $('reconnectBanner').style.display='flex'; setLiveStatus(''); setLiveIcon(false); }
-function hideReconnectBanner(){ $('reconnectBanner').style.display='none'; }
-function showLockedBanner(){ hideReconnectBanner(); $('lockedBanner').style.display='flex'; setLiveStatus(''); }
-function hideLockedBanner(){ $('lockedBanner').style.display='none'; }
-function setLiveIcon(connected){
-  var btn=$('btnLive');
-  if (connected){ btn.innerHTML='&#128994;'; btn.style.color='var(--good)'; btn.title='Conectado en vivo — tocá para reconectar'; }
-  else { btn.innerHTML='↻'; btn.style.color=''; btn.title='Conectar Excel en vivo'; }
-}
-
-function readLiveFile(attempt){
-  attempt=attempt||1;
-  if (!_fileHandle) return Promise.resolve();
-  return _fileHandle.getFile().then(function(file){
-    return file.arrayBuffer().then(function(buf){
-      if (!window.XLSX) return;
-      var wb=XLSX.read(new Uint8Array(buf),{type:'array',cellDates:true});
-      var d=parseWorkbookToData(wb);
-      if (d.gastos.length || d.ingresos.length){
-        loadData(d, file.name);
-        $('uploadStatus').textContent=file.name;
-        setLiveIcon(true);
-        hideReconnectBanner(); hideLockedBanner();
-        setLiveStatus('Conectado en vivo · actualizado '+new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}));
-      }
-    });
-  }).catch(function(err){
-    if (window.console) console.warn('readLiveFile: fallo intento '+attempt, err&&err.name, err&&err.message);
-    if (err && err.name==='NotAllowedError'){ showReconnectBanner(); return; }
-    if (err && (err.name==='NotFoundError'||err.name==='InvalidStateError')){
-      _fileHandle=null; hideReconnectBanner(); hideLockedBanner(); setLiveIcon(false);
-      setLiveStatus('OneDrive reemplazó el archivo al sincronizar — tocá ↻ arriba y elegí el Excel de nuevo (una sola vez).');
-      return deleteHandle();
-    }
-    if (attempt<4) return new Promise(function(res){ setTimeout(res,1000*attempt); }).then(function(){ return readLiveFile(attempt+1); });
-    showLockedBanner(); setLiveIcon(false);
-  });
-}
-function startPolling(){
-  if (_pollTimer) clearInterval(_pollTimer);
-  _pollTimer=setInterval(function(){ readLiveFile(); }, 10000);
-  if (!_visListenerAdded){
-    _visListenerAdded=true;
-    document.addEventListener('visibilitychange', function(){
-      if (!document.hidden && _fileHandle) readLiveFile();
-    });
-  }
-}
-function connectLive(){
-  if (!window.showOpenFilePicker){ setLiveStatus('Tu navegador no soporta conexión en vivo (usá Chrome/Edge en compu).'); return; }
-  loadHandle().then(function(reconnectHandle){
-    if (reconnectHandle){
-      return reconnectHandle.requestPermission({mode:'read'}).then(function(perm){
-        if (perm==='granted'){ _fileHandle=reconnectHandle; return readLiveFile().then(function(){ startPolling(); }); }
-        throw new Error('denied');
-      });
-    }
-    throw new Error('no-handle');
-  }).catch(function(){
-    window.showOpenFilePicker({types:[{description:'Excel',accept:{'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':['.xlsx']}}]}).then(function(handles){
-      var handle=handles[0]; _fileHandle=handle;
-      return saveHandle(handle).then(function(){ return readLiveFile().then(function(){ startPolling(); }); });
-    }).catch(function(){});
-  });
-}
-function tryReconnectLive(){
-  if (!window.showOpenFilePicker) return;
-  loadHandle().then(function(handle){
-    if (!handle){ setLiveStatus('Tocá ↻ para conectar tu Excel en vivo'); return; }
-    handle.queryPermission({mode:'read'}).then(function(perm){
-      if (perm==='granted'){ _fileHandle=handle; readLiveFile().then(function(){ startPolling(); }); }
-      else { _fileHandle=handle; showReconnectBanner(); }
-    });
-  }).catch(function(){});
-}
-$('btnLive').addEventListener('click', connectLive);
-$('retryBtn').addEventListener('click', function(){ readLiveFile(); });
-$('reconnectBtn').addEventListener('click', function(){
-  if (!_fileHandle){ connectLive(); return; }
-  _fileHandle.requestPermission({mode:'read'}).then(function(p){
-    if (p==='granted'){ hideReconnectBanner(); readLiveFile().then(function(){ startPolling(); }); }
-    else setLiveStatus('Permiso denegado — tocá de nuevo o usá ↻');
-  }).catch(function(){ setLiveStatus('No se pudo reconectar — tocá ↻ arriba'); });
-});
 
 /* ---- Conmutador de vistas ---- */
 function setView(v){
@@ -2195,13 +2059,11 @@ document.addEventListener('click',function(e){
 });
 (function init(){
   try{var t=localStorage.getItem('pro_theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}
-  if (!window.showOpenFilePicker) $('btnLive').style.display='none';
   loadBlue();
   loadCoinGecko();
   loadLiveMarket();
   renderAll();
   moveInk();
-  tryReconnectLive();
   if(location.hash==='#portfolio') setView('portfolio');
   if(location.hash==='#inversiones') setView('inversiones');
   if(location.hash==='#news') setView('news');
