@@ -226,12 +226,25 @@ blue_rate = num(cell(ws, 6, 3)) or usdt_ars
 wb.close()
 tmp_path.unlink(missing_ok=True)
 
+# Historial diario del portafolio (para el gráfico de evolución): lo arma
+# snapshot_portafolio.py corriendo solo todas las noches, no este script. Acá
+# solo se lee ese archivo si existe — así no hace falta tocar el Excel ni
+# pedir precios en vivo desde este script offline.
+historial_path = BASE / "historial_portafolio.json"
+historial_portafolio = []
+if historial_path.exists():
+    try:
+        historial_portafolio = json.loads(historial_path.read_text(encoding="utf-8"))
+    except Exception:
+        historial_portafolio = []
+
 data = {
     "gastos": gastos,
     "ingresos": ingresos,
     "inversiones": inversiones,
     "inversionesFisicas": {"productos": productos_fisicos, "ventas": ventas_fisicas},
     "metas": metas,
+    "historialPortafolio": historial_portafolio,
     "config": {"usdtArs": usdt_ars, "blueRate": blue_rate},
 }
 

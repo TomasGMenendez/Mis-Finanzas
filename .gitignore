@@ -9,11 +9,13 @@ Programas/mis_reglas_privado.json
 # Datos financieros crudos (extractos, portafolio, planillas, backups)
 account_statement-*.csv
 sync_log.txt
+Programas/snapshot_log.txt
 *.xlsx
 Dashboard de finanzas personales.zip
 
 # Otros
 __pycache__/
 .venv/
+.vscode/
 .claude/worktrees/
 .claude/settings.local.json
