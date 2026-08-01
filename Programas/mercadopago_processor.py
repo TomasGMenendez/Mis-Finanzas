@@ -4,7 +4,7 @@ Uso:  python mercadopago_processor.py account_statement-XXXX.csv
 Lee CSV de MP, aplica reglas de mis_reglas.json + config_toto.json, y carga
 al Excel Finanzas_Toto.xlsx en las hojas Gastos e Ingresos.
 """
-import sys, json, os, subprocess
+import sys, json, os, re, subprocess
 from pathlib import Path
 
 BASE = Path(__file__).parent
@@ -51,14 +51,19 @@ with open(BASE / "config_toto.json", encoding="utf-8") as f:
 # Reglas con nombres reales de personas: viven aparte en mis_reglas_privado.json
 # (fuera de git, ver .gitignore) porque el repo puede ser público. Si existe,
 # se combinan con las reglas públicas; si no está, sigue funcionando igual
-# solo que sin esas reglas puntuales.
+# solo que sin esas reglas puntuales. Se guarda "privadas" aparte (no solo el
+# "reglas" combinado) porque las categorías que se cargan a mano durante esta
+# corrida (ver preguntar_categoria más abajo) se agregan solo a este archivo
+# privado, nunca al público, para no filtrar nombres de personas al repo.
 priv_path = BASE / "mis_reglas_privado.json"
 if priv_path.exists():
     with open(priv_path, encoding="utf-8") as f:
         privadas = json.load(f)
-    reglas["reglas_gastos"] = privadas.get("reglas_gastos", []) + reglas.get("reglas_gastos", [])
-    reglas["reglas_ingresos"] = privadas.get("reglas_ingresos", []) + reglas.get("reglas_ingresos", [])
-    reglas["excluir"] = privadas.get("excluir", []) + reglas.get("excluir", [])
+else:
+    privadas = {"reglas_gastos": [], "reglas_ingresos": [], "excluir": []}
+reglas["reglas_gastos"] = privadas.get("reglas_gastos", []) + reglas.get("reglas_gastos", [])
+reglas["reglas_ingresos"] = privadas.get("reglas_ingresos", []) + reglas.get("reglas_ingresos", [])
+reglas["excluir"] = privadas.get("excluir", []) + reglas.get("excluir", [])
 
 # Cargar CSV
 df = pd.read_csv(csv_file, sep=";", skiprows=3, decimal=",", thousands=".")
@@ -123,10 +128,37 @@ print("      Los ingresos (rendimientos MP, transferencias recibidas) se muestra
 print("      arriba solo de referencia, pero no se escriben al Excel.")
 
 if len(revisar) > 0:
-    print("\n⚠️  Necesitan categorización manual:")
-    for _, r_ in revisar.iterrows():
-        print(f"  - {r_['fecha'].date()} | ${r_['amt']:>10,.2f} | {r_['desc']}")
-    print("Después de correr, andá a la hoja Gastos y editá esas categorías.")
+    print(f"\n⚠️  {len(revisar)} transferencia(s) a persona(s) nueva(s) — te voy a preguntar la categoría de cada una al cargarlas.")
+
+# Transferencias a una persona/comercio que ninguna regla reconoce: en vez de
+# dejarlas con categoría "?" para que Toto las revise después a mano en el
+# Excel, se pregunta la categoría en el momento. La respuesta se guarda como
+# regla nueva en mis_reglas_privado.json (nunca en el público, por los
+# nombres) para que la próxima vez que aparezca la misma persona ya se
+# categorice sola. "categorias_sesion" evita preguntar dos veces por la misma
+# persona si aparece más de una vez en el mismo archivo CSV.
+categorias_sesion = {}
+
+def normalizar_nombre(desc):
+    return re.sub(r'^transferencia (enviada|recibida)\s*', '', desc, flags=re.I).strip().lower()
+
+def preguntar_categoria(desc, monto, fecha):
+    nombre = normalizar_nombre(desc)
+    if nombre in categorias_sesion:
+        return categorias_sesion[nombre]
+    print(f"\n⚠️  Transferencia nueva: \"{desc}\" — ${monto:,.2f} — {fecha.strftime('%d/%m/%Y')}")
+    cat = input("   ¿A qué categoría la cargo? (Enter para dejarla \"?\" y revisarla después en Excel) > ").strip()
+    if not cat:
+        cat = "?"
+    else:
+        privadas.setdefault("reglas_gastos", []).insert(0, {
+            "match": nombre, "categoria": cat, "descripcion": desc,
+        })
+        with open(priv_path, "w", encoding="utf-8") as f:
+            json.dump(privadas, f, ensure_ascii=False, indent=2)
+        print(f"   Guardado — la próxima vez \"{desc}\" se va a cargar sola en \"{cat}\".")
+    categorias_sesion[nombre] = cat
+    return cat
 
 # Cargar al Excel
 xlsx_path = RAIZ / "Finanzas_Toto.xlsx"
@@ -185,8 +217,11 @@ for _, r_ in pd.concat([gastos, revisar]).iterrows():
     mkey = (str(r_["fecha"].date()), abs(r_["amt"]))
     if mkey in existentes_monto:
         avisos_monto.append((r_["fecha"].date(), abs(r_["amt"]), r_["fuente"][:100], existentes_monto[mkey]))
+    categoria = r_["categoria"]
+    if r_["tipo"] == "REVISAR":
+        categoria = preguntar_categoria(r_["fuente"][:100], abs(r_["amt"]), r_["fecha"])
     gas.cell(row, 2, r_["fecha"].date()).number_format = 'dd/mm/yyyy'
-    gas.cell(row, 4, r_["categoria"])
+    gas.cell(row, 4, categoria)
     gas.cell(row, 5, r_["fuente"][:100])
     gas.cell(row, 6, "MercadoPago")
     gas.cell(row, 7, "Variable")

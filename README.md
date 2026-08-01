@@ -30,9 +30,14 @@ seguirla — es un manual de "qué hacer" para el día a día.
 
 ### Bajé un CSV de MercadoPago
 1. Arrastrá el archivo CSV y soltalo arriba de **"Cargar gastos de MercadoPago.bat"**.
-2. Se abre una ventana negra que te cuenta qué cargó. Si dice que hay transferencias
-   "para revisar" o "posibles duplicados", andá al Excel (hoja **Gastos**) y fijate esas filas.
-3. Ese mismo proceso ya deja todo actualizado — no hace falta correr nada más.
+2. Se abre una ventana negra que te cuenta qué cargó. Si hay una transferencia a una
+   persona o comercio nuevo (que ninguna regla reconoce), **te va a preguntar ahí
+   mismo** a qué categoría cargarla — escribila y Enter. Si apretás Enter sin escribir
+   nada, la deja como "?" para que la revises después a mano en el Excel.
+   La próxima vez que aparezca esa misma persona, ya se va a cargar sola (queda
+   guardada la regla).
+3. Si dice "posibles duplicados", andá al Excel (hoja **Gastos**) y fijate esas filas.
+4. Ese mismo proceso ya deja todo actualizado — no hace falta correr nada más.
 
 ### Quiero actualizar mi portafolio de Bybit
 1. Doble clic en **"Actualizar desde Bybit.bat"**.
