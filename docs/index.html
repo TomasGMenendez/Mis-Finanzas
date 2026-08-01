@@ -70,6 +70,9 @@ nav::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;backg
 .icon-btn{width:34px;height:34px;border:1px solid transparent;background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;border-radius:9px;transition:color .25s,border-color .25s,transform .25s}
 .icon-btn:hover{color:var(--ink);border-color:var(--hair-strong);transform:translateY(-1px)}
 .icon-btn:active{transform:scale(.88)}
+.status-dot{width:9px;height:9px;border-radius:50%;background:var(--muted);margin-right:4px;flex:none;transition:background .25s}
+.status-dot.ok{background:var(--good)}
+.status-dot.err{background:var(--bad)}
 
 /* ================= TABS (sliding ink) ================= */
 .tabs{display:flex;gap:1.8rem;border-bottom:1px solid var(--hair);margin-top:1.4rem;position:relative}
@@ -458,6 +461,7 @@ html.privacy .amt{filter:blur(9px)}
       <button class="vbtn" data-v="news">Noticias</button>
     </div>
     <div class="nav-r">
+      <span class="status-dot" id="statusDot" title="Registro semanal del portafolio"></span>
       <button class="icon-btn" id="btnTheme" title="Cambiar tema">◐</button>
       <button class="icon-btn" id="btnPrivacy" title="Ocultar montos">👁</button>
     </div>
@@ -2079,8 +2083,35 @@ var io=new IntersectionObserver(function(entries){
 document.querySelectorAll('[data-r]').forEach(function(el){io.observe(el);});
 
 /* ================= INIT ================= */
+/* Puntito de estado (donde antes estaba el botón de conexión en vivo):
+   avisa si la tarea programada de los viernes (snapshot_portafolio.py) dejó
+   de registrar el valor del portafolio. Gris = todavía no hay ningún
+   registro (recién instalado). Verde = hay un registro de los últimos 10
+   días. Rojo = pasaron más de 10 días sin uno nuevo — probablemente la
+   tarea programada falló varias veces seguidas (compu apagada los
+   viernes, Excel bloqueado, sin internet, etc). */
+function renderStatusDot(){
+  var dot=$('statusDot'); if(!dot) return;
+  var hist=DATA.historialPortafolio||[];
+  dot.classList.remove('ok','err');
+  if(!hist.length){
+    dot.title='Registro semanal del portafolio: todavía no hay ninguno guardado.';
+    return;
+  }
+  var last=hist.slice().sort(function(a,b){return a.fecha<b.fecha?-1:a.fecha>b.fecha?1:0})[hist.length-1];
+  var dias=Math.floor((LATEST_TODAY()-pDate(last.fecha))/86400000);
+  if(dias<=10){
+    dot.classList.add('ok');
+    dot.title='Registro semanal del portafolio al día — último hace '+dias+' día'+(dias===1?'':'s')+'.';
+  } else {
+    dot.classList.add('err');
+    dot.title='¡Atención! Hace '+dias+' días que no se registra el portafolio. Revisá la tarea programada de Windows (Programas/snapshot_log.txt tiene el detalle).';
+  }
+}
+function LATEST_TODAY(){ var d=new Date(); d.setHours(0,0,0,0); return d; }
+
 function renderAll(){
-  renderHero();renderChart();renderCats();renderInsights();renderPort();renderPortView();renderPortHistoryChart();renderBuy();renderGoals();renderMx();renderMovs();
+  renderHero();renderChart();renderCats();renderInsights();renderPort();renderPortView();renderPortHistoryChart();renderStatusDot();renderBuy();renderGoals();renderMx();renderMovs();
   S.first=false;
 }
 document.addEventListener('click',function(e){
