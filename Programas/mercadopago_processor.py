@@ -10,16 +10,6 @@ from pathlib import Path
 BASE = Path(__file__).parent
 RAIZ = BASE.parent  # donde vive Finanzas_Toto.xlsx
 
-
-def is_duplicate_existing(existing, fecha_str, descripcion, monto):
-    """Devuelve True cuando ya existe un gasto igual por fecha + persona/descripcion.
-    El monto NO participa en la comparación para evitar falsos duplicados cuando
-    una misma transferencia cambia de importe o se corrige en un nuevo reporte."""
-    if not fecha_str or not descripcion:
-        return False
-    key = (str(fecha_str)[:10], (descripcion or "").strip().lower())
-    return key in existing
-
 # Auto-install deps
 def ensure(pkg):
     try: __import__(pkg)
@@ -27,6 +17,11 @@ def ensure(pkg):
         subprocess.check_call([sys.executable, "-m", "pip", "install", pkg, "--quiet"])
 ensure("pandas")
 ensure("openpyxl")
+
+# Las reglas y la clasificación viven en mercadopago_comun.py, compartidas con
+# el CRM (crm_mercadopago.py), para que los dos caminos de carga clasifiquen
+# exactamente igual.
+import mercadopago_comun as MPC
 
 import pandas as pd
 from openpyxl import load_workbook
@@ -43,33 +38,12 @@ if not os.path.exists(csv_file):
     sys.exit(1)
 
 # Cargar reglas + config
-with open(BASE / "mis_reglas.json", encoding="utf-8") as f:
-    reglas = json.load(f)
+reglas, privadas = MPC.cargar_reglas()
 with open(BASE / "config_toto.json", encoding="utf-8") as f:
     config = json.load(f)
 
-# Reglas con nombres reales de personas: viven aparte en mis_reglas_privado.json
-# (fuera de git, ver .gitignore) porque el repo puede ser público. Si existe,
-# se combinan con las reglas públicas; si no está, sigue funcionando igual
-# solo que sin esas reglas puntuales. Se guarda "privadas" aparte (no solo el
-# "reglas" combinado) porque las categorías que se cargan a mano durante esta
-# corrida (ver preguntar_categoria más abajo) se agregan solo a este archivo
-# privado, nunca al público, para no filtrar nombres de personas al repo.
-priv_path = BASE / "mis_reglas_privado.json"
-if priv_path.exists():
-    with open(priv_path, encoding="utf-8") as f:
-        privadas = json.load(f)
-else:
-    privadas = {"reglas_gastos": [], "reglas_ingresos": [], "excluir": []}
-reglas["reglas_gastos"] = privadas.get("reglas_gastos", []) + reglas.get("reglas_gastos", [])
-reglas["reglas_ingresos"] = privadas.get("reglas_ingresos", []) + reglas.get("reglas_ingresos", [])
-reglas["excluir"] = privadas.get("excluir", []) + reglas.get("excluir", [])
-
 # Cargar CSV
-df = pd.read_csv(csv_file, sep=";", skiprows=3, decimal=",", thousands=".")
-df["desc"] = df["TRANSACTION_TYPE"].str.strip()
-df["fecha"] = pd.to_datetime(df["RELEASE_DATE"], format="%d-%m-%Y")
-df["amt"] = df["TRANSACTION_NET_AMOUNT"]
+df = MPC.leer_csv(csv_file)
 
 def normalize_sort_value(value):
     if isinstance(value, datetime):
@@ -83,32 +57,8 @@ def normalize_sort_value(value):
     return value
 
 
-def clasificar(desc, amt):
-    d = desc.lower()
-    # Excluidos
-    for ex in reglas["excluir"]:
-        if ex["match"] in d:
-            return None, None, None, f"EXCLUIDO: {ex['razon']}"
-    # Ingresos por regla
-    for r in reglas["reglas_ingresos"]:
-        if r["match"] in d:
-            return "INGRESO", r["fuente"], None, None
-    # Ingreso genérico si transferencia recibida
-    if "transferencia recibida" in d and amt > 0:
-        name = desc.replace("Transferencia recibida", "").strip()
-        return "INGRESO", f"Transf: {name}", None, None
-    # Gastos por regla
-    for r in reglas["reglas_gastos"]:
-        if r["match"] in d:
-            return "GASTO", r["descripcion"], r["categoria"], None
-    # Transferencia enviada sin regla → preguntar
-    if "transferencia enviada" in d:
-        return "REVISAR", desc, "?", "Transferencia a persona nueva — necesita categorización manual"
-    # Default
-    return "GASTO", desc, reglas["categoria_default_gasto"], None
-
 df[["tipo","fuente","categoria","nota"]] = df.apply(
-    lambda r: pd.Series(clasificar(r["desc"], r["amt"])), axis=1)
+    lambda r: pd.Series(MPC.clasificar(r["desc"], r["amt"], reglas)), axis=1)
 
 # Reporte
 ingresos = df[df["tipo"]=="INGRESO"]
@@ -139,11 +89,8 @@ if len(revisar) > 0:
 # persona si aparece más de una vez en el mismo archivo CSV.
 categorias_sesion = {}
 
-def normalizar_nombre(desc):
-    return re.sub(r'^transferencia (enviada|recibida)\s*', '', desc, flags=re.I).strip().lower()
-
 def preguntar_categoria(desc, monto, fecha):
-    nombre = normalizar_nombre(desc)
+    nombre = MPC.normalizar_nombre(desc)
     if nombre in categorias_sesion:
         return categorias_sesion[nombre]
     print(f"\n⚠️  Transferencia nueva: \"{desc}\" — ${monto:,.2f} — {fecha.strftime('%d/%m/%Y')}")
@@ -151,11 +98,7 @@ def preguntar_categoria(desc, monto, fecha):
     if not cat:
         cat = "?"
     else:
-        privadas.setdefault("reglas_gastos", []).insert(0, {
-            "match": nombre, "categoria": cat, "descripcion": desc,
-        })
-        with open(priv_path, "w", encoding="utf-8") as f:
-            json.dump(privadas, f, ensure_ascii=False, indent=2)
+        MPC.guardar_regla_privada(privadas, desc, cat)
         print(f"   Guardado — la próxima vez \"{desc}\" se va a cargar sola en \"{cat}\".")
     categorias_sesion[nombre] = cat
     return cat
@@ -211,7 +154,7 @@ saltados = 0
 avisos_monto = []
 for _, r_ in pd.concat([gastos, revisar]).iterrows():
     key = (str(r_["fecha"].date()), r_["fuente"][:100].strip().lower())
-    if is_duplicate_existing(existentes, r_["fecha"].date(), r_["fuente"][:100], abs(r_["amt"])):
+    if MPC.es_duplicado(existentes, r_["fecha"].date(), r_["fuente"][:100]):
         saltados += 1
         continue
     mkey = (str(r_["fecha"].date()), abs(r_["amt"]))

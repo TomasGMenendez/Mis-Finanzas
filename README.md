@@ -10,6 +10,7 @@ seguirla — es un manual de "qué hacer" para el día a día.
 | Archivo / carpeta | Qué es |
 |---|---|
 | **Finanzas_Toto.xlsx** | El Excel real, con todos tus datos: gastos, ingresos, inversiones, metas. Todo lo demás se arma a partir de esto. |
+| **Abrir mi CRM.bat** | El CRM: la forma más cómoda de cargar datos. Abre una pantalla con formularios donde cargás gastos, ingresos, aportes, posiciones de Bull Market y el CSV de MercadoPago. Al guardar actualiza el Excel y el Dashboard solo. Ver punto 3. |
 | **Mi Dashboard de Finanzas.html** | El Dashboard visual (gráficos, balance, portafolio). Doble clic para abrirlo en el navegador. Es la versión de la compu. |
 | **Ver mi Dashboard.bat** | Atajo para abrir el Dashboard sin buscar el archivo. |
 | **Actualizar mi iPhone.bat** | El botón que más vas a usar. Lee el Excel, actualiza el Dashboard (compu **e** iPhone) y sube los cambios a Internet para que el celular los vea. |
@@ -23,12 +24,19 @@ seguirla — es un manual de "qué hacer" para el día a día.
 
 ## 2. Uso del día a día
 
+### Quiero cargar algo (la forma fácil)
+Doble clic en **"Abrir mi CRM.bat"** y cargalo desde ahí. Se actualiza todo solo
+— no hace falta abrir el Excel ni correr nada más. Ver punto 3.
+
 ### Edité el Excel a mano (cargué un gasto, un ingreso, etc.)
 1. Guardá el Excel y cerralo.
 2. Doble clic en **"Actualizar mi iPhone.bat"**.
 3. Listo — compu e iPhone quedan con los datos nuevos en un par de minutos.
 
 ### Bajé un CSV de MercadoPago
+Lo más cómodo es soltarlo en el CRM (pestaña MercadoPago), que te muestra qué va
+a cargar antes de tocar el Excel. Si preferís la forma vieja por consola:
+
 1. Arrastrá el archivo CSV y soltalo arriba de **"Cargar gastos de MercadoPago.bat"**.
 2. Se abre una ventana negra que te cuenta qué cargó. Si hay una transferencia a una
    persona o comercio nuevo (que ninguna regla reconoce), **te va a preguntar ahí
@@ -48,11 +56,56 @@ Doble clic en **"Ver mi Dashboard.bat"** (o directamente en el archivo .html).
 
 ---
 
-## 3. El Dashboard — qué tiene cada pestaña
+## 3. El CRM — cargar datos sin abrir el Excel
+
+Doble clic en **"Abrir mi CRM.bat"**. Se abre una ventana negra (dejala abierta)
+y a los pocos segundos se abre solo el CRM en el navegador. Te pide el **PIN
+(1930)**.
+
+### Qué podés cargar
+
+| Pestaña | Para qué |
+|---|---|
+| **Gasto** | Un gasto suelto: fecha, monto, categoría, medio de pago. Va a la hoja Gastos. |
+| **Ingreso** | Sueldo, cobros, ventas, extras. Va a la hoja Ingresos. |
+| **Inversión** | Plata que le metés a una inversión, sin desglosar por activo. Va a la tabla de Aportes. |
+| **Portafolio** | Tus posiciones de Bull Market (ticker, cantidad, precio de compra y actual). Podés editar, agregar y borrar, y guardás todo junto. |
+| **MercadoPago** | Soltás el CSV y te muestra qué va a cargar **antes** de tocar el Excel. A las transferencias de gente nueva les elegís categoría ahí mismo, y queda aprendida para la próxima. Los ingresos nunca se cargan, solo los gastos. |
+| **Más** | Metas de ahorro, ventas de mercadería y la cotización del dólar. |
+
+### Qué pasa cuando apretás Guardar
+
+1. Se escribe en el Excel (antes hace una copia de seguridad automática).
+2. Se regenera el Dashboard de la compu y la copia del iPhone.
+3. Se sube a Internet solo, unos segundos después, para que el iPhone lo vea.
+
+Arriba a la derecha hay un cartelito que te dice cómo viene esa subida
+("iPhone al día", "se sube en breve", "subiendo…"). Si tocás ese cartelito,
+sube en el momento sin esperar.
+
+### Usarlo desde el iPhone
+
+Estando **en casa** (misma WiFi) y con la compu prendida y el CRM abierto,
+entrá desde el celular a la dirección que aparece en la ventana negra
+(algo como `http://192.168.0.15:8765`). Mismo PIN. Fuera de casa no funciona
+— para eso está el Dashboard, que sí se ve desde cualquier lado.
+
+### Cosas para saber
+
+- **Si tenés el Excel abierto, el CRM no puede guardar.** Te lo va a avisar con
+  un cartel; cerrá el Excel y volvé a apretar Guardar.
+- Cada guardado deja una copia del Excel en `Programas/backups/` (se conservan
+  las últimas 40). Si algo sale mal, ahí está el archivo de antes.
+- El PIN y el puerto se cambian en `Programas/crm_config.json`.
+- Para cerrar el CRM, cerrá la ventana negra.
+
+---
+
+## 4. El Dashboard — qué tiene cada pestaña
 
 - **Resumen**: balance del mes, gastos por categoría, ingresos vs. gastos.
 - **Portafolio**: todo tu portafolio financiero (cripto, acciones, CEDEARs, bonos) con
-  precios en vivo, y el gráfico **"Evolución del portafolio"** (ver punto 5).
+  precios en vivo, y el gráfico **"Evolución del portafolio"** (ver punto 6).
 - **Inversiones**: tus **metas de ahorro** (ej. juntar plata para un depto) y tu
   **mercadería para reventa** (ej. la comida para perro) — son cosas aparte del
   portafolio financiero.
@@ -63,23 +116,23 @@ modo privacidad (oculta los montos con ••••, útil si alguien te mira la
 
 ---
 
-## 4. El iPhone
+## 5. El iPhone
 
 El Dashboard del celular es una "app" instalada desde el navegador (PWA), pide un
 PIN para entrar (**1930**) — es solo para que no lo abra cualquiera que agarre el
 celular, no es una seguridad real tipo banco.
 
-**El celular NO se actualiza solo apenas editás el Excel.** Se actualiza recién
-cuando corrés alguno de los `.bat` de esta carpeta (o cuando corre sola la tarea
-de los viernes, ver punto 5) y eso sube los cambios a Internet. Puede tardar
-1-2 minutos en aparecer en el teléfono después de eso.
+**El celular NO se actualiza solo apenas editás el Excel a mano.** Se actualiza
+cuando cargás algo desde el CRM (lo hace solo), cuando corrés alguno de los
+`.bat` de esta carpeta, o cuando corre sola la tarea de los viernes (ver punto 6).
+Puede tardar 1-2 minutos en aparecer en el teléfono después de eso.
 
 Si el celular te muestra algo viejo después de esperar un rato: cerrá la app del
 todo (deslizala hacia arriba en el selector de apps) y volvé a abrirla.
 
 ---
 
-## 5. El gráfico "Evolución del portafolio"
+## 6. El gráfico "Evolución del portafolio"
 
 Este gráfico muestra cómo cambió el valor de tu portafolio con el tiempo (podés
 verlo por Día, Semana, Mes o Año). Para armarlo hace falta ir guardando un
@@ -95,7 +148,7 @@ completa — al principio vas a ver solo el último valor guardado, es normal.
 
 ---
 
-## 6. Categorías y duplicados
+## 7. Categorías y duplicados
 
 - En la hoja **Gastos** del Excel hay una columna **"Posible duplicado"** (la
   última, con letra chica) que se pinta sola en rojo si dos filas tienen la
@@ -109,7 +162,7 @@ completa — al principio vas a ver solo el último valor guardado, es normal.
 
 ---
 
-## 7. Si algo no anda
+## 8. Si algo no anda
 
 | Problema | Qué hacer |
 |---|---|
@@ -121,7 +174,7 @@ completa — al principio vas a ver solo el último valor guardado, es normal.
 
 ---
 
-## 8. Qué NO tocar
+## 9. Qué NO tocar
 
 - La carpeta **Programas/** (son los scripts que hacen funcionar todo — tocar algo
   ahí sin querer puede romper la actualización del Dashboard).

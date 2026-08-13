@@ -5,6 +5,7 @@ bybit_config.txt
 # financiera, nombres de terceros) — el repo puede ser público
 Programas/config_toto.json
 Programas/mis_reglas_privado.json
+Programas/crm_config.json
 
 # Datos financieros crudos (extractos, portafolio, planillas, backups)
 account_statement-*.csv

@@ -200,6 +200,35 @@ if inv_fis_start:
             break
         r += 1
 
+# Aportes a inversiones (tabla simple, aparte de Gastos): cada vez que se le
+# mete plata a una inversión sin desglosar por activo ni precio. Vive en su
+# propia sub-sección de la hoja Inversiones, después de "REGISTRO DE VENTAS".
+ws = wb["Inversiones"]
+aportes_inversion = []
+ap_start = None
+for r in range(1, ws.max_row + 1):
+    v = cell(ws, r, 2)
+    if v and re.match(r"^── APORTES", str(v), re.I):
+        ap_start = r
+        break
+if ap_start:
+    r = ap_start + 1
+    while r <= ws.max_row and not (cell(ws, r, 2) == "Fecha" and cell(ws, r, 4) == "Monto"):
+        r += 1
+    r += 1
+    while r <= ws.max_row:
+        f = fecha_str(cell(ws, r, 2))
+        monto = num(cell(ws, r, 4))
+        if f and monto:
+            moneda = cell(ws, r, 5)
+            aportes_inversion.append({
+                "fecha": f,
+                "monto": monto,
+                "moneda": (moneda or "ARS").strip() if isinstance(moneda, str) else (moneda or "ARS"),
+                "nota": cell(ws, r, 6) or "",
+            })
+        r += 1
+
 # Metas: objetivos de ahorro (ej. "Departamento", USDT 80.000). "Ahorrado"
 # es solo la parte manual (plata fuera del portafolio); lo que aportan los
 # activos vinculados (columna Meta de Inversiones) se suma en el Dashboard,
@@ -243,6 +272,7 @@ data = {
     "ingresos": ingresos,
     "inversiones": inversiones,
     "inversionesFisicas": {"productos": productos_fisicos, "ventas": ventas_fisicas},
+    "aportesInversion": aportes_inversion,
     "metas": metas,
     "historialPortafolio": historial_portafolio,
     "config": {"usdtArs": usdt_ars, "blueRate": blue_rate},
@@ -257,7 +287,7 @@ if n == 0:
     sys.exit(1)
 
 html_path.write_text(new_html, encoding="utf-8")
-print(f"Dashboard actualizado con datos reales: {len(gastos)} gastos, {len(ingresos)} ingresos, {len(inversiones)} inversiones.")
+print(f"Dashboard actualizado con datos reales: {len(gastos)} gastos, {len(ingresos)} ingresos, {len(inversiones)} inversiones, {len(aportes_inversion)} aportes.")
 
 # Copia para publicar (docs/index.html, versión iPhone/PWA). Si todavía no
 # existe esa carpeta no pasa nada — este paso es opcional y no afecta al
