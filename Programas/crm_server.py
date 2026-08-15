@@ -42,6 +42,7 @@ from flask import Flask, jsonify, request, session, send_file  # noqa: E402
 
 import crm_excel as XL  # noqa: E402
 import crm_mercadopago as MP  # noqa: E402
+import crm_bullmarket as BM  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Configuración
@@ -335,6 +336,28 @@ def mp_confirmar():
     resultado["aviso"] = aviso
     resultado["ok"] = True
     return jsonify(resultado)
+
+
+# ---------------------------------------------------------------------------
+# Bull Market: se sube el reporte de tenencia (CSV o Excel, el que sea — cada
+# broker lo nombra distinto) y se lee de forma genérica. Esto NO escribe al
+# Excel: sólo devuelve filas + una detección de columnas para que el CRM arme
+# la tabla de posiciones; grabar de verdad sigue pasando por /api/posiciones
+# cuando el usuario aprieta "Guardar posiciones" (mismo camino que cargar a
+# mano), así siempre hay una revisión antes de tocar el archivo.
+# ---------------------------------------------------------------------------
+@app.post("/api/bullmarket/analizar")
+@requiere_pin
+def bm_analizar():
+    archivo = request.files.get("archivo")
+    if not archivo:
+        return jsonify({"error": "No llegó ningún archivo."}), 400
+    try:
+        return jsonify(BM.analizar(archivo.filename, archivo.stream.read()))
+    except BM.ErrorBM as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:  # noqa: BLE001
+        return jsonify({"error": f"No pude leer el archivo: {e}"}), 400
 
 
 # ---------------------------------------------------------------------------

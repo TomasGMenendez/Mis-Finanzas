@@ -69,9 +69,44 @@ y a los pocos segundos se abre solo el CRM en el navegador. Te pide el **PIN
 | **Gasto** | Un gasto suelto: fecha, monto, categoría, medio de pago. Va a la hoja Gastos. |
 | **Ingreso** | Sueldo, cobros, ventas, extras. Va a la hoja Ingresos. |
 | **Inversión** | Plata que le metés a una inversión, sin desglosar por activo. Va a la tabla de Aportes. |
-| **Portafolio** | Tus posiciones de Bull Market (ticker, cantidad, precio de compra y actual). Podés editar, agregar y borrar, y guardás todo junto. |
+| **Portafolio** | Tus posiciones de Bull Market (ticker, cantidad, precio de compra y actual). Podés editar, agregar y borrar a mano, o importar la Cuenta Corriente — ver abajo. Bybit no va acá: ese se sincroniza solo por API con "Actualizar desde Bybit.bat". |
 | **MercadoPago** | Soltás el CSV y te muestra qué va a cargar **antes** de tocar el Excel. A las transferencias de gente nueva les elegís categoría ahí mismo, y queda aprendida para la próxima. Los ingresos nunca se cargan, solo los gastos. |
 | **Más** | Metas de ahorro, ventas de mercadería y la cotización del dólar. |
+
+### Importar desde la Cuenta Corriente de Bull Market (en vez de cargar a mano)
+
+Bull Market no tiene un reporte de "tenencia" separado — lo único que exporta
+es la **Cuenta Corriente** (Estado de cuenta → Cuenta Corriente, en pesos),
+que es el libro de movimientos: una fila por cada compra, venta, dividendo,
+transferencia, caución. En la pestaña **Portafolio** hay una zona para
+soltar ese archivo (CSV o Excel, tal cual lo exporta Bull Market) y el CRM
+reconstruye la tenencia solo, sumando las compras y restando las ventas de
+cada activo. No pregunta nada — soltás el archivo y ya está.
+
+**Solo agrega lo que es nuevo.** A una posición que ya tenías cargada no le
+toca ni la cantidad, ni el precio de compra, ni el precio actual — porque la
+Cuenta Corriente puede no cubrir toda la historia de un activo (si lo
+compraste antes de la fecha en que arranca el reporte, la cuenta te va a dar
+de menos) y un precio "actual" calculado ahí es en realidad el de la última
+operación, no el del mercado en vivo. Así que:
+
+- **Activo nuevo** (no estaba en la tabla): se agrega con la cantidad y el
+  precio de compra que salen de sumar sus operaciones en el archivo.
+- **Activo que ya tenías**: no se toca nada. Si la cantidad que aparece en
+  el archivo no coincide con la que ya tenías cargada, aparece un aviso
+  abajo del todo para que lo revises — pero no cambia solo.
+- Si un activo da con cantidad **negativa** (vendiste más de lo que compraste
+  *dentro de las fechas de este archivo*), no se importa — es señal de que
+  tenías compras de antes del período que cubre el reporte.
+- **El efectivo ("Cash $") es la única excepción**: sí se actualiza siempre,
+  tomando el Saldo de la última fila del archivo. A diferencia de las
+  cantidades de cada activo (que dependen de que el archivo cubra toda la
+  historia), el Saldo es la plata disponible en la cuenta a la fecha del
+  reporte — un dato real y completo, no una reconstrucción parcial.
+
+Igual que con lo cargado a mano, todavía no se guardó nada — es la misma
+tabla editable de siempre. Revisala y recién ahí apretás
+**"Guardar posiciones"**.
 
 ### Qué pasa cuando apretás Guardar
 

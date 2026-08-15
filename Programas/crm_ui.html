@@ -74,6 +74,8 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .btn:disabled{opacity:.5;cursor:default}
 .btn.ghost{background:none;border:1px solid var(--hair-strong);color:var(--ink)}
 .btn.sm{width:auto;margin:0;padding:8px 14px;font-size:.8rem}
+@keyframes pendiente{0%,100%{box-shadow:0 0 0 0 rgba(217,179,108,.55)}50%{box-shadow:0 0 0 10px rgba(217,179,108,0)}}
+.btn.pendiente{animation:pendiente 1.1s ease-out 4}
 
 /* ---------- LISTAS ---------- */
 .rows{margin-top:6px}
@@ -179,6 +181,16 @@ td.n input{text-align:right;font-variant-numeric:tabular-nums}
 
   <!-- PORTAFOLIO -->
   <section class="card hidden" data-panel="portafolio">
+    <h2>Importar tenencia de Bull Market</h2>
+    <div class="sub">Bajá el reporte de tenencia desde Bull Market (CSV o Excel, tal cual lo exporta) y soltalo acá. Se carga solo, sin preguntar nada. Bybit no va acá — ese ya se sincroniza solo por API.</div>
+    <div class="drop" id="bmDrop">
+      <b>Soltá el archivo acá</b><span>o tocá para elegirlo — CSV o Excel</span>
+      <input type="file" id="bmFile" accept=".csv,.xlsx,.xlsm,.xls" class="hidden">
+    </div>
+    <div id="bmResumen" class="hidden"></div>
+  </section>
+
+  <section class="card hidden" data-panel="portafolio" id="bmTablaPanel">
     <h2>Posiciones de Bull Market</h2>
     <div class="sub">Qué tenés hoy en el broker. Editá, agregá o borrá filas y guardá todo junto. <b id="bmLibres"></b></div>
     <div class="tbl-scroll"><table>
@@ -458,10 +470,23 @@ conectar('fCotiz',   '/api/cotizacion', []);
 /* ================= POSICIONES BULL MARKET ================= */
 function filaPos(p){
   p = p || {};
-  var tipos = (CAT.tiposInversion||[]).map(function(t){
+  // Si el tipo (o la meta) que ya tenía cargados esta posición no está en la
+  // lista de opciones conocidas — pasa con "Acción AR"/"Cash ARS", que están
+  // en uso pero no en la hoja Config — el <select> queda sin ninguna opción
+  // "selected" y el navegador cae en la primera de la lista sin avisar. Si
+  // después se guarda esa fila así como está, ese valor equivocado ("Cripto",
+  // por ser la primera opción) se termina escribiendo al Excel en silencio.
+  // Por eso el valor actual siempre se agrega como opción si no está en la
+  // lista, para que nunca se pierda solo por no reconocerlo.
+  var listaTipos = (CAT.tiposInversion||[]).slice();
+  if (p.tipo && listaTipos.indexOf(p.tipo)===-1) listaTipos.unshift(p.tipo);
+  var tipos = listaTipos.map(function(t){
     return '<option'+(t===p.tipo?' selected':'')+'>'+esc(t)+'</option>';
   }).join('');
-  var metas = ['<option value="">—</option>'].concat((CAT.metas||[]).map(function(m){
+
+  var listaMetas = (CAT.metas||[]).slice();
+  if (p.meta && listaMetas.indexOf(p.meta)===-1) listaMetas.unshift(p.meta);
+  var metas = ['<option value="">—</option>'].concat(listaMetas.map(function(m){
     return '<option'+(m===p.meta?' selected':'')+'>'+esc(m)+'</option>';
   })).join('');
   return '<tr>'
@@ -498,6 +523,139 @@ $('bmSave').addEventListener('click', function(){
     .catch(function(e){ toast(e.message,'err'); })
     .finally(function(){ b.disabled=false; b.textContent='Guardar posiciones'; });
 });
+
+/* ================= IMPORTAR TENENCIA DE BULL MARKET =================
+   No pregunta nada: detecta las columnas sola y arma directo la tabla de
+   arriba (la misma que se edita a mano) con lo importado, fusionado con lo
+   que ya había. Lo único que queda como paso aparte es guardar de verdad —
+   eso sigue siendo el botón "Guardar posiciones", para no tocar el Excel
+   sin que se vea antes en la tabla. */
+function normTicker(s){ return (''+(s||'')).trim().toUpperCase(); }
+
+$('bmDrop').addEventListener('click', function(){ $('bmFile').click(); });
+$('bmDrop').addEventListener('dragover', function(e){ e.preventDefault(); this.classList.add('over'); });
+$('bmDrop').addEventListener('dragleave', function(){ this.classList.remove('over'); });
+$('bmDrop').addEventListener('drop', function(e){
+  e.preventDefault(); this.classList.remove('over');
+  if (e.dataTransfer.files[0]) subirBM(e.dataTransfer.files[0]);
+});
+$('bmFile').addEventListener('change', function(){ if (this.files[0]) subirBM(this.files[0]); });
+
+function subirBM(file){
+  $('bmResumen').classList.add('hidden');
+  $('bmDrop').querySelector('b').textContent = 'Leyendo ' + file.name + '…';
+  var fd = new FormData(); fd.append('archivo', file);
+  api('/api/bullmarket/analizar', {method:'POST', body:fd})
+    .then(procesarBM)
+    .catch(function(e){ toast(e.message, 'err'); })
+    .finally(function(){
+      $('bmDrop').querySelector('b').textContent = 'Soltá el archivo acá';
+      $('bmFile').value = '';
+    });
+}
+
+function procesarBM(d){
+  if (!d.reconocido){
+    // No se pudo reconocer el archivo solo — se avisa qué encabezados tiene
+    // en vez de preguntar nada.
+    $('bmResumen').className = 'sub';
+    $('bmResumen').innerHTML = '<b style="color:var(--bad)">No reconocí las columnas de este archivo.</b><br>'
+      + 'Encabezados encontrados: ' + esc((d.encabezados||[]).join(' · ') || '(ninguno)')
+      + '<br>Avisame y ajusto qué palabras busca el CRM para reconocerlas.';
+    $('bmResumen').classList.remove('hidden');
+    return;
+  }
+
+  var actuales = (EST.posiciones||[]).map(function(p){ return Object.assign({}, p); });
+  var porTicker = {};
+  actuales.forEach(function(p, i){ porTicker[normTicker(p.activo)] = i; });
+
+  // La Cuenta Corriente es un libro de movimientos, no una foto de la
+  // tenencia — puede no cubrir toda la historia de un activo (ej. si lo
+  // compraste antes de la fecha en que arranca este reporte), y el "precio
+  // actual" que calcula acá es sólo el de la última operación vista, no un
+  // precio de mercado en vivo. Por eso, a lo que YA estaba cargado no se le
+  // toca NADA — ni cantidad, ni precio de compra, ni precio actual: podría
+  // pisar un dato mejor (una compra vieja, un precio ya actualizado a mano)
+  // con uno peor calculado sobre un archivo parcial. Sólo se agrega lo que
+  // es nuevo, y se avisa si algo no cierra.
+  var nuevosDetalle = [], yaEstaban = [];
+  var notas = (d.advertencias || []).slice();
+  (d.posiciones || []).forEach(function(pos){
+    var key = normTicker(pos.activo);
+    if (key in porTicker){
+      var p = actuales[porTicker[key]];
+      yaEstaban.push(pos.activo);
+      if (Math.abs((pos.cantidad||0) - (p.cantidad||0)) > 1e-6){
+        notas.push(pos.activo+': en este archivo aparecen '+pos.cantidad+' operadas, pero ya tenías '
+          +p.cantidad+' cargadas — no toqué nada, revisalo si no te cierra.');
+      }
+    } else {
+      actuales.push({
+        activo: pos.activo, tipo: pos.tipo, fechaCompra: pos.fechaCompra,
+        cantidad: pos.cantidad,
+        precioCompra: pos.precioCompra != null ? pos.precioCompra : pos.precioActual,
+        precioActual: pos.precioActual != null ? pos.precioActual : pos.precioCompra,
+        meta: '',
+      });
+      nuevosDetalle.push(pos.activo);
+    }
+  });
+
+  // El efectivo es distinto del resto: no se reconstruye sumando este
+  // archivo (que podría estar incompleto), es el Saldo que Bull Market ya
+  // viene arrastrando fila a fila — el de la última fila es el saldo real
+  // a la fecha del reporte. Por eso, a diferencia de todo lo demás, esto sí
+  // se actualiza siempre (se crea "Cash $" si todavía no existía).
+  var notaEfectivo = null;
+  if (d.efectivo){
+    var iCash = actuales.findIndex(function(p){ return normTicker(p.activo)==='CASH $'; });
+    if (iCash>-1){
+      var anterior = actuales[iCash].cantidad;
+      actuales[iCash].cantidad = d.efectivo.cantidad;
+      actuales[iCash].precioCompra = 1;
+      actuales[iCash].precioActual = 1;
+      notaEfectivo = 'Efectivo actualizado: $'+fmt(anterior)+' → $'+fmt(d.efectivo.cantidad)+' (saldo al '+d.efectivo.fecha+').';
+    } else {
+      actuales.push({
+        activo: 'Cash $', tipo: 'Cash ARS', fechaCompra: d.efectivo.fecha,
+        cantidad: d.efectivo.cantidad, precioCompra: 1, precioActual: 1, meta: '',
+      });
+      notaEfectivo = 'Se agregó Cash $ con el saldo del archivo: $'+fmt(d.efectivo.cantidad)+' (al '+d.efectivo.fecha+').';
+    }
+  }
+
+  EST.posiciones = actuales;
+  renderPosiciones();
+
+  if (!nuevosDetalle.length && !yaEstaban.length && !notas.length && !notaEfectivo){
+    $('bmResumen').className = 'sub';
+    $('bmResumen').innerHTML = '<b style="color:var(--bad)">No encontré ninguna posición para cargar en este archivo.</b>';
+    $('bmResumen').classList.remove('hidden');
+    return;
+  }
+  var hayCambiosPendientes = !!(nuevosDetalle.length || notaEfectivo);
+  $('bmResumen').className = 'sub';
+  $('bmResumen').innerHTML = (nuevosDetalle.length ? '<b style="color:var(--good)">✓ '+nuevosDetalle.length+' posición(es) nueva(s) detectada(s).</b><br>'+esc(nuevosDetalle.join(', '))+'<br>' : '<b>Sin posiciones nuevas.</b><br>')
+    + (notaEfectivo ? '<br>'+esc(notaEfectivo)+'<br>' : '')
+    + (yaEstaban.length ? '<br>'+yaEstaban.length+' ya las tenías cargadas — no se tocaron: '+esc(yaEstaban.join(', '))+'<br>' : '')
+    + (notas.length ? '<br>'+notas.map(esc).join('<br>')+'<br>' : '')
+    + (hayCambiosPendientes ? '<br><b style="color:var(--accent)">⚠ Esto todavía es sólo una vista previa — no se guardó nada en el Excel.</b><br>Bajá hasta el botón dorado <b>"Guardar posiciones"</b> y apretalo para que se guarde de verdad.' : '');
+  $('bmResumen').classList.remove('hidden');
+
+  if (hayCambiosPendientes){
+    var btnGuardar = $('bmSave');
+    if (typeof btnGuardar.scrollIntoView === 'function'){
+      btnGuardar.scrollIntoView({behavior:'smooth', block:'center'});
+    }
+    // Resalta el botón un momento para que no se pase por alto que falta
+    // este paso — es justo lo que se salteó la vez pasada (el scroll dejaba
+    // el botón fuera de la pantalla, abajo de toda la tabla).
+    btnGuardar.classList.remove('pendiente'); void btnGuardar.offsetWidth;
+    btnGuardar.classList.add('pendiente');
+    setTimeout(function(){ btnGuardar.classList.remove('pendiente'); }, 5000);
+  }
+}
 
 /* ================= MERCADOPAGO ================= */
 $('mpDrop').addEventListener('click', function(){ $('mpFile').click(); });
