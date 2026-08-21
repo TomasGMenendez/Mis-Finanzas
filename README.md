@@ -62,13 +62,24 @@ Doble clic en **"Abrir mi CRM.bat"**. Se abre una ventana negra (dejala abierta)
 y a los pocos segundos se abre solo el CRM en el navegador. Te pide el **PIN
 (1930)**.
 
+**El Dashboard y el CRM son una sola cosa acá adentro.** La primera pestaña
+("Dashboard") es el mismo Dashboard de siempre — gráficos, resumen,
+portafolio, noticias — con datos recalculados en el momento en que la abrís,
+así nunca hace falta correr "Actualizar mi iPhone.bat" antes de mirarlo. Para
+cargar algo, tocás cualquier otra pestaña; para volver a los gráficos, tocás
+"Dashboard" de nuevo — se refresca solo. Ya no hace falta abrir dos cosas
+separadas, con que tengas el CRM abierto alcanza para todo.
+
+*(El Dashboard del iPhone para cuando estás afuera de casa sigue siendo el de
+siempre — "Ver mi Dashboard.bat" y la versión publicada — porque cargar
+datos necesita el servidor prendido en la compu, algo que desde afuera no
+tenés.)*
+
 ### Qué podés cargar
 
 | Pestaña | Para qué |
 |---|---|
-| **Gasto** | Un gasto suelto: fecha, monto, categoría, medio de pago. Va a la hoja Gastos. |
-| **Ingreso** | Sueldo, cobros, ventas, extras. Va a la hoja Ingresos. |
-| **Inversión** | Plata que le metés a una inversión, sin desglosar por activo. Va a la tabla de Aportes. |
+| **Dashboard** | Los gráficos y el resumen de siempre, con datos en vivo — no hay nada para cargar acá, es la vista de lectura. |
 | **Portafolio** | Tus posiciones de Bull Market (ticker, cantidad, precio de compra y actual). Podés editar, agregar y borrar a mano, o importar la Cuenta Corriente — ver abajo. Bybit no va acá: ese se sincroniza solo por API con "Actualizar desde Bybit.bat". |
 | **MercadoPago** | Soltás el CSV y te muestra qué va a cargar **antes** de tocar el Excel. A las transferencias de gente nueva les elegís categoría ahí mismo, y queda aprendida para la próxima. Los ingresos nunca se cargan, solo los gastos. |
 | **Más** | Metas de ahorro, ventas de mercadería y la cotización del dólar. |

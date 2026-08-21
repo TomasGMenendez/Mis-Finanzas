@@ -16,6 +16,7 @@ Uso:  python crm_server.py        (o doble clic en "Abrir mi CRM.bat")
 """
 import json
 import os
+import re
 import socket
 import subprocess
 import sys
@@ -43,6 +44,7 @@ from flask import Flask, jsonify, request, session, send_file  # noqa: E402
 import crm_excel as XL  # noqa: E402
 import crm_mercadopago as MP  # noqa: E402
 import crm_bullmarket as BM  # noqa: E402
+import generar_datos_html as GEN  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Configuración
@@ -195,6 +197,35 @@ def sesion():
 @app.get("/")
 def inicio():
     return send_file(BASE / "crm_ui.html")
+
+
+# El Dashboard visual (gráficos, resumen, portafolio) vive embebido acá
+# adentro como una pestaña más (ver crm_ui.html) — se sirve el mismo archivo
+# "Mi Dashboard de Finanzas.html" de siempre, pero con los datos recalculados
+# en el momento en vez de los que haya guardados en el archivo. Así el
+# Dashboard que se ve en el CRM siempre está al día, sin tener que correr
+# "Actualizar mi iPhone.bat" primero — y sin duplicar ni una línea del código
+# de los gráficos, que sigue viviendo en un solo lugar.
+@app.get("/dashboard")
+@requiere_pin
+def dashboard():
+    try:
+        with CANDADO_EXCEL:
+            datos = GEN.construir_datos(XL.XLSX)
+    except FileNotFoundError as e:
+        return f"No encuentro el Excel: {e}", 500
+    except PermissionError as e:
+        return str(e), 503
+
+    html_path = RAIZ / "Mi Dashboard de Finanzas.html"
+    if not html_path.exists():
+        return "No encuentro 'Mi Dashboard de Finanzas.html'.", 500
+    html = html_path.read_text(encoding="utf-8")
+    nueva_linea = "var EMBEDDED_DATA = " + json.dumps(datos, ensure_ascii=False, separators=(",", ":")) + ";"
+    html, n = re.subn(r"var EMBEDDED_DATA = .*?;", lambda m: nueva_linea, html, count=1)
+    if n == 0:
+        return "No encontré 'EMBEDDED_DATA' en el Dashboard.", 500
+    return html
 
 
 @app.get("/api/catalogos")

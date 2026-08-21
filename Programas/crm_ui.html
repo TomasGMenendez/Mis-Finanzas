@@ -119,6 +119,10 @@ td.n input{text-align:right;font-variant-numeric:tabular-nums}
 #toast.ok{border-color:rgba(93,165,132,.45)}
 #toast.err{border-color:rgba(205,116,96,.5)}
 .hidden{display:none!important}
+
+/* ---------- DASHBOARD (embebido, más ancho que el resto del CRM) ---------- */
+.dash-wrap{max-width:1180px;margin:0 auto;padding:0 clamp(16px,4vw,40px)}
+.dash-wrap iframe{width:100%;height:calc(100vh - 128px);min-height:480px;border:none;border-radius:16px;background:var(--surface);display:block}
 </style>
 </head>
 <body>
@@ -137,47 +141,7 @@ td.n input{text-align:right;font-variant-numeric:tabular-nums}
 </div></nav>
 
 <div class="wrap">
-  <div class="tabs" id="tabs"></div>
-
-  <!-- GASTO -->
-  <section class="card" data-panel="gasto">
-    <h2>Cargar un gasto</h2>
-    <div class="sub">Va a la hoja Gastos. Si es plata que metés a una inversión, usá la pestaña Inversión.</div>
-    <form id="fGasto"><div class="grid">
-      <label class="field"><span>Fecha</span><input type="date" name="fecha" required></label>
-      <label class="field"><span>Monto</span><input name="monto" inputmode="decimal" placeholder="0" required></label>
-      <label class="field"><span>Categoría</span><select name="categoria" data-cat="categorias" required></select></label>
-      <label class="field"><span>Medio de pago</span><select name="medio" data-cat="medios"></select></label>
-      <label class="field"><span>Tipo</span><select name="tipo" data-cat="tipos"></select></label>
-      <label class="field"><span>Moneda</span><select name="moneda" data-cat="monedas"></select></label>
-      <label class="field full"><span>Descripción</span><input name="descripcion" placeholder="Ej. Super de la semana"></label>
-    </div><button class="btn" type="submit">Guardar gasto</button></form>
-  </section>
-
-  <!-- INGRESO -->
-  <section class="card hidden" data-panel="ingreso">
-    <h2>Cargar un ingreso</h2>
-    <div class="sub">Va a la hoja Ingresos: sueldo, ventas, cobros, extras.</div>
-    <form id="fIngreso"><div class="grid">
-      <label class="field"><span>Fecha</span><input type="date" name="fecha" required></label>
-      <label class="field"><span>Monto</span><input name="monto" inputmode="decimal" placeholder="0" required></label>
-      <label class="field"><span>Fuente</span><input name="fuente" list="lFuentes" placeholder="Trabajo" required><datalist id="lFuentes"></datalist></label>
-      <label class="field"><span>Moneda</span><select name="moneda" data-cat="monedas"></select></label>
-      <label class="field full"><span>Descripción</span><input name="descripcion" placeholder="Ej. Sueldo de agosto"></label>
-    </div><button class="btn" type="submit">Guardar ingreso</button></form>
-  </section>
-
-  <!-- APORTE -->
-  <section class="card hidden" data-panel="inversion">
-    <h2>Aporte a inversiones</h2>
-    <div class="sub">Plata que le metés a una inversión, sin desglosar por activo. No cuenta como gasto.</div>
-    <form id="fAporte"><div class="grid">
-      <label class="field"><span>Fecha</span><input type="date" name="fecha" required></label>
-      <label class="field"><span>Monto</span><input name="monto" inputmode="decimal" placeholder="0" required></label>
-      <label class="field"><span>Moneda</span><select name="moneda" data-cat="monedas"></select></label>
-      <label class="field"><span>Nota</span><input name="nota" placeholder="Ej. Transferencia a Bull Market"></label>
-    </div><button class="btn" type="submit">Guardar aporte</button></form>
-  </section>
+  <div class="tabs hidden" id="tabs"></div>
 
   <!-- PORTAFOLIO -->
   <section class="card hidden" data-panel="portafolio">
@@ -252,11 +216,16 @@ td.n input{text-align:right;font-variant-numeric:tabular-nums}
   </section>
 
   <!-- RECIENTES -->
-  <section class="card" id="recientes">
+  <section class="card hidden" id="recientes">
     <h2>Últimos movimientos</h2>
     <div class="sub" id="recSub">Lo último que cargaste. Tocá la papelera para borrar del Excel.</div>
     <div class="rows" id="recRows"></div>
   </section>
+</div>
+
+<!-- DASHBOARD (fuera del wrap angosto, para que se vea cómodo en la compu) -->
+<div class="dash-wrap" data-panel="dashboard">
+  <iframe id="dashboardFrame" title="Dashboard"></iframe>
 </div>
 </div>
 
@@ -264,7 +233,7 @@ td.n input{text-align:right;font-variant-numeric:tabular-nums}
 
 <script>
 var $ = function(id){ return document.getElementById(id); };
-var CAT = {}, EST = {}, TAB = 'gasto', MP = null;
+var CAT = {}, EST = {}, TAB = 'dashboard', MP = null;
 
 /* ================= API ================= */
 function api(path, opts){
@@ -347,6 +316,11 @@ function arrancar(){
   document.querySelectorAll('input[type=date]').forEach(function(i){ if(!i.value) i.value = hoy(); });
   cargarCatalogos().then(cargarEstado);
   setInterval(verPublicacion, 5000);
+  /* El iframe del Dashboard no tiene src hasta acá a propósito: si cargara
+     de entrada (antes de poner el PIN), el pedido a /dashboard llega sin
+     sesión y el servidor contesta 401 — el iframe se queda mostrando ese
+     error para siempre, porque sólo se refresca al cambiar de pestaña. */
+  if (TAB === 'dashboard') $('dashboardFrame').src = '/dashboard?_=' + Date.now();
 }
 
 if (location.protocol !== 'file:'){
@@ -357,8 +331,7 @@ if (location.protocol !== 'file:'){
 }
 
 /* ================= TABS ================= */
-var TABS = [['gasto','Gasto'],['ingreso','Ingreso'],['inversion','Inversión'],
-            ['portafolio','Portafolio'],['mercadopago','MercadoPago'],['mas','Más']];
+var TABS = [['dashboard','Dashboard'],['portafolio','Portafolio'],['mercadopago','MercadoPago'],['mas','Más']];
 $('tabs').innerHTML = TABS.map(function(t){
   return '<button class="tab'+(t[0]===TAB?' on':'')+'" data-t="'+t[0]+'">'+t[1]+'</button>';
 }).join('');
@@ -367,9 +340,42 @@ $('tabs').addEventListener('click', function(e){
   TAB = b.dataset.t;
   document.querySelectorAll('.tab').forEach(function(x){ x.classList.toggle('on', x.dataset.t===TAB); });
   document.querySelectorAll('[data-panel]').forEach(function(p){ p.classList.toggle('hidden', p.dataset.panel!==TAB); });
-  $('recientes').classList.toggle('hidden', TAB==='mercadopago' || TAB==='portafolio');
+  $('recientes').classList.toggle('hidden', TAB==='mercadopago' || TAB==='portafolio' || TAB==='dashboard');
+  if (TAB==='dashboard'){
+    // Se refresca con datos frescos cada vez que se vuelve a esta pestaña
+    // (ej. después de guardar un gasto en otra pestaña) — sin esto, el
+    // iframe se queda con lo que tenía cargado la primera vez.
+    $('dashboardFrame').src = '/dashboard?_=' + Date.now();
+  }
   renderRecientes();
 });
+
+/* ================= ABRIR CRM DESDE EL DASHBOARD =================
+   Se arranca mostrando el Dashboard a pantalla completa, sin la barra de
+   pestañas. Para llegar a Portafolio/MercadoPago/Más se inyecta un botón
+   más en el propio nav del Dashboard (al lado de "Noticias") una vez que
+   termina de cargar el iframe — no se toca el archivo del Dashboard en sí,
+   que también se abre suelto (doble clic) y publicado para el iPhone,
+   donde este botón no serviría de nada porque ahí no hay servidor. */
+window.abrirCRM = function(){
+  $('tabs').classList.remove('hidden');
+  var b = document.querySelector('.tab[data-t="portafolio"]');
+  if (b) b.click();
+};
+function inyectarBotonCRM(){
+  var doc;
+  try { doc = $('dashboardFrame').contentDocument; } catch (e) { return; }
+  if (!doc || doc.getElementById('btnAbrirCRM')) return;
+  var views = doc.querySelector('.views');
+  if (!views) return;
+  var btn = doc.createElement('button');
+  btn.id = 'btnAbrirCRM';
+  btn.className = 'vbtn';
+  btn.textContent = 'CRM';
+  btn.addEventListener('click', function(){ parent.abrirCRM(); });
+  views.appendChild(btn);
+}
+$('dashboardFrame').addEventListener('load', inyectarBotonCRM);
 
 /* ================= CATÁLOGOS ================= */
 function cargarCatalogos(){
@@ -379,7 +385,6 @@ function cargarCatalogos(){
       var lista = c[s.dataset.cat] || [];
       s.innerHTML = lista.map(function(v){ return '<option>'+esc(v)+'</option>'; }).join('');
     });
-    $('lFuentes').innerHTML = (c.fuentes||[]).map(function(v){ return '<option value="'+esc(v)+'">'; }).join('');
     var fc = $('fCotiz');
     fc.usdtArs.value = c.usdtArs || '';
     fc.dolarBlue.value = c.dolarBlue || '';
@@ -398,46 +403,20 @@ function cargarEstado(){
 }
 
 function renderRecientes(){
-  var host = $('recRows'), items = [], hoja = null;
-  if (TAB === 'ingreso'){
-    hoja = 'Ingresos';
-    items = (EST.ingresos||[]).slice(0,12).map(function(x){
-      return {fila:x.fila, t:x.fuente + (x.descripcion? ' · '+x.descripcion : ''), s:x.fecha, m:x.monto, mo:x.moneda};
-    });
-  } else if (TAB === 'inversion'){
-    items = (EST.aportes||[]).slice(0,12).map(function(x){
-      return {t:x.nota || 'Aporte', s:x.fecha, m:x.monto, mo:x.moneda};
-    });
-  } else if (TAB === 'mas'){
+  var host = $('recRows'), items = [];
+  if (TAB === 'mas'){
     items = (EST.ventas||[]).slice(0,12).map(function(x){
       return {t:'Venta · '+x.producto+' ('+x.cantidad+' un.)', s:x.fecha, m:x.cantidad*x.precioVenta, mo:'ARS'};
     });
-  } else {
-    hoja = 'Gastos';
-    items = (EST.gastos||[]).slice(0,12).map(function(x){
-      return {fila:x.fila, t:x.descripcion || x.categoria, s:x.fecha+' · '+x.categoria, m:x.monto, mo:x.moneda};
-    });
   }
-  $('recSub').textContent = hoja
-    ? 'Lo último que cargaste. Tocá la papelera para borrar del Excel.'
-    : 'Lo último que cargaste.';
+  $('recSub').textContent = 'Lo último que cargaste.';
   if (!items.length){ host.innerHTML = '<div class="empty">Todavía no hay nada cargado.</div>'; return; }
   host.innerHTML = items.map(function(x){
     return '<div class="row"><div class="g"><div class="t">'+esc(x.t)+'</div><div class="s">'+esc(x.s)+'</div></div>'
       +'<b>'+(x.mo==='USDT'?'US$ ':'$ ')+fmt(x.m)+'</b>'
-      +(hoja && x.fila ? '<button class="del" data-hoja="'+hoja+'" data-fila="'+x.fila+'" title="Borrar">🗑</button>' : '')
       +'</div>';
   }).join('');
 }
-
-$('recRows').addEventListener('click', function(e){
-  var b = e.target.closest('.del'); if(!b) return;
-  if (!confirm('¿Borrar este movimiento del Excel?')) return;
-  b.disabled = true;
-  api('/api/borrar', {method:'POST', body:{hoja:b.dataset.hoja, fila:+b.dataset.fila}})
-    .then(function(d){ toast(d.mensaje, 'ok'); return cargarEstado(); })
-    .catch(function(e){ toast(e.message, 'err'); b.disabled = false; });
-});
 
 /* ================= FORMULARIOS ================= */
 function conectar(idForm, ruta, limpiar){
@@ -460,9 +439,6 @@ function conectar(idForm, ruta, limpiar){
   var b = $(idForm).querySelector('button[type=submit]');
   b.dataset.txt = b.textContent;
 }
-conectar('fGasto',   '/api/gasto',      ['monto','descripcion']);
-conectar('fIngreso', '/api/ingreso',    ['monto','descripcion']);
-conectar('fAporte',  '/api/aporte',     ['monto','nota']);
 conectar('fVenta',   '/api/venta',      ['cantidad','precioVenta']);
 conectar('fMeta',    '/api/meta',       ['meta','objetivo','ahorradoManual']);
 conectar('fCotiz',   '/api/cotizacion', []);
